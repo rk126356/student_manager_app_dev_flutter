@@ -91,7 +91,7 @@ class _StudentsScreenState extends State<StudentsScreen>
                           MyListTile(
                             title: studentDoc['studentName'] ?? '',
                             subtitle:
-                                'Batch: ${studentDoc['studentBatch']} | ID: ${studentDoc['nextBillInDays']}' ??
+                                'Batch: ${studentDoc['studentBatch']} | ID: ${studentDoc['studentId']}' ??
                                     '',
                             onTap: () {
                               // Handle onTap action for each student

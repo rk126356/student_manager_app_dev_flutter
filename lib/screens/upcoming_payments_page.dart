@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:student_manager_app_dev_flutter/components/NavBar.dart';
+import 'package:student_manager_app_dev_flutter/screens/payments/upcoming_payments_in_seven_days_tab.dart';
+import 'package:student_manager_app_dev_flutter/screens/payments/upcoming_payments_this_month_tab.dart';
+import 'package:student_manager_app_dev_flutter/screens/payments/upcoming_payments_today_tab.dart';
 
 class UpcomingPaymentsScreen extends StatefulWidget {
   const UpcomingPaymentsScreen({super.key});
@@ -39,10 +42,10 @@ class _UpcomingPaymentsScreenState extends State<UpcomingPaymentsScreen>
               text: "Upcoming",
             ),
             Tab(
-              text: "This Month",
+              text: "Today",
             ),
             Tab(
-              text: "Last Month",
+              text: "Within 7 Days",
             ),
           ],
         ),
@@ -51,13 +54,13 @@ class _UpcomingPaymentsScreenState extends State<UpcomingPaymentsScreen>
         controller: _tabController,
         children: const <Widget>[
           Center(
-            child: Text("It's cloudy here"),
+            child: UpcomingPaymentsThisMonthTab(),
           ),
           Center(
-            child: Text("It's rainy here"),
+            child: UpcomingPaymentsTodayTab(),
           ),
           Center(
-            child: Text("It's sunny here"),
+            child: UpcomingPaymentsSevenDaysTab(),
           ),
         ],
       ),

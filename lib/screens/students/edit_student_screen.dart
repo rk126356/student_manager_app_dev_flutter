@@ -45,7 +45,7 @@ class _EditStudentFormState extends State<EditStudentForm> {
   String? studentName;
   String? studentBatch;
   int? chargePerMonth;
-  String? joinedDate = '';
+  String? joinedDate;
   bool? isActive;
   bool? isLeft;
   bool isUnpaid = true; // Default to Unpaid
@@ -201,18 +201,6 @@ class _EditStudentFormState extends State<EditStudentForm> {
                 },
               ),
               const SizedBox(height: 10),
-              InkWell(
-                onTap: () {
-                  _selectDate(context, true);
-                },
-                child: InputDecorator(
-                  decoration: const InputDecoration(
-                    labelText: 'Joined Date',
-                    border: OutlineInputBorder(),
-                  ),
-                  child: Text(joinedDate ?? ''),
-                ),
-              ),
               const SizedBox(height: 10),
               CheckboxListTile(
                 title: const Text('Active'),

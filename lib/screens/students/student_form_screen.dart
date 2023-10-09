@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:student_manager_app_dev_flutter/providers/user_provider.dart';
 import 'package:uuid/uuid.dart';
@@ -76,19 +77,26 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
     // Generate a unique 8-digit ID for the student
     final String studentId = const Uuid().v4().substring(0, 8);
 
+    // Parse the joinedDate string into a DateTime
+    final DateTime parsedJoinedDate =
+        DateFormat('dd/MM/yyyy').parse(joinedDate);
+
+    // Calculate the nextBillDate based on joinedDate and chargePerMonth
+    final DateTime nextBillDate = parsedJoinedDate.add(Duration(days: 30));
+
     // Add a new document with student data and the generated ID
     await studentsCollection.doc(studentId).set({
       'studentId': studentId,
       'studentName': studentName,
       'studentBatch': studentBatch,
       'joinedDate': joinedDate,
+      'lastBillDate': joinedDate,
+      'nextBillDate': DateFormat('dd/MM/yyyy').format(nextBillDate),
       'isActive': isActive,
       'isLeft': isLeft,
       'isUnpaid': isUnpaid,
       'isPaid': isPaid,
       'chargePerMonth': chargePerMonth,
-      'nextBillInDays': 2,
-      'totalUnpaidBills': 0
     });
 
     print('Student data added to Firestore with ID: $studentId');
@@ -136,7 +144,7 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
           const SizedBox(height: 10),
           TextFormField(
             decoration: const InputDecoration(
-              labelText: 'Charge Per Month',
+              labelText: 'Fee Per Month',
               border: OutlineInputBorder(),
               prefixIcon: Icon(Icons.currency_rupee), // Rupee icon
             ),

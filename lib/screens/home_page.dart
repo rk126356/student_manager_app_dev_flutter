@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:student_manager_app_dev_flutter/components/NavBar.dart';
@@ -9,11 +8,9 @@ import 'package:student_manager_app_dev_flutter/components/home_unpaid_tab.dart'
 import 'package:student_manager_app_dev_flutter/components/home_upcoming_tab.dart';
 import 'package:student_manager_app_dev_flutter/components/last_month.dart';
 import 'package:student_manager_app_dev_flutter/components/this_month.dart';
-import 'package:student_manager_app_dev_flutter/models/user_model.dart';
 import 'package:student_manager_app_dev_flutter/providers/user_provider.dart';
 import 'package:student_manager_app_dev_flutter/utils/bill_generator.dart';
 import 'package:student_manager_app_dev_flutter/widgets/tab_button_widget.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HomeScreen extends StatefulWidget {
   final String myString; // Declare a field to hold the string
@@ -34,8 +31,9 @@ class _HomeScreenState extends State<HomeScreen> {
     var user = Provider.of<UserProvider>(context, listen: false).userData;
 
     if (!_billGenerated) {
-      BillGenerator.generateBills(user.uid!);
-      print("Bill Generated");
+      // BillGenerator.generateBills(user.uid!);
+      generateBills(user.uid!);
+
       _billGenerated = true;
     }
 
