@@ -17,8 +17,8 @@ class HomeStudentsTab extends StatelessWidget {
           .doc(user
               .uid) // Replace 'uid' with the actual UID you want to fetch data for
           .collection('students')
-          .orderBy('JoinedDate',
-              descending: true) // Order by JoinedDate in descending order
+          .orderBy('joinedDate',
+              descending: false) // Order by JoinedDate in descending order
           .limit(15) // Limit to the latest 15 records
           .snapshots(),
       builder: (context, snapshot) {

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:student_manager_app_dev_flutter/components/NavBar.dart';
+import 'package:student_manager_app_dev_flutter/screens/payments/all_payments_tab.dart';
+import 'package:student_manager_app_dev_flutter/screens/payments/paid_payments_tab.dart';
+import 'package:student_manager_app_dev_flutter/screens/payments/unpaid_payments_tab.dart';
 
 class PaymentsScreen extends StatefulWidget {
   const PaymentsScreen({super.key});
@@ -8,8 +11,6 @@ class PaymentsScreen extends StatefulWidget {
   State<PaymentsScreen> createState() => _PaymentsScreenState();
 }
 
-/// [AnimationController]s can be created with `vsync: this` because of
-/// [TickerProviderStateMixin].
 class _PaymentsScreenState extends State<PaymentsScreen>
     with TickerProviderStateMixin {
   late final TabController _tabController;
@@ -50,15 +51,14 @@ class _PaymentsScreenState extends State<PaymentsScreen>
       body: TabBarView(
         controller: _tabController,
         children: const <Widget>[
-          Center(
-            child: Text("It's cloudy here"),
-          ),
-          Center(
-            child: Text("It's rainy here"),
-          ),
-          Center(
-            child: Text("It's sunny here"),
-          ),
+          // Display all payments here
+          AllPaymentsTab(),
+
+          // Display paid payments here
+          PaidPaymentsTab(),
+
+          // Display unpaid payments here
+          UnpaidPaymentsTab(),
         ],
       ),
     );

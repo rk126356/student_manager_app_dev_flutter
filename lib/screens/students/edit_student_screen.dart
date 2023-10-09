@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:student_manager_app_dev_flutter/providers/user_provider.dart';
 
@@ -43,6 +44,7 @@ class _EditStudentFormState extends State<EditStudentForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   String? studentName;
   String? studentBatch;
+  int? chargePerMonth;
   String? joinedDate = '';
   bool? isActive;
   bool? isLeft;
@@ -72,6 +74,7 @@ class _EditStudentFormState extends State<EditStudentForm> {
       String studentId,
       String studentName,
       String studentBatch,
+      int chargePerMonth,
       String joinedDate,
       bool isActive,
       bool isLeft,
@@ -93,6 +96,7 @@ class _EditStudentFormState extends State<EditStudentForm> {
     await studentsCollection.doc(widget.studentId).update({
       'studentName': studentName,
       'studentBatch': studentBatch,
+      'chargePerMonth': chargePerMonth,
       'joinedDate': joinedDate,
       'isActive': isActive,
       'isLeft': isLeft,
@@ -125,6 +129,7 @@ class _EditStudentFormState extends State<EditStudentForm> {
 
           studentName = studentData['studentName'];
           studentBatch = studentData['studentBatch'];
+          chargePerMonth = studentData['chargePerMonth'];
           joinedDate = studentData['joinedDate'];
           isActive = studentData['isActive'];
           isLeft = studentData['isLeft'];
@@ -170,6 +175,29 @@ class _EditStudentFormState extends State<EditStudentForm> {
                 },
                 onSaved: (value) {
                   studentBatch = value;
+                },
+              ),
+              const SizedBox(height: 10),
+              TextFormField(
+                initialValue:
+                    chargePerMonth != null ? chargePerMonth.toString() : "",
+                decoration: const InputDecoration(
+                  labelText: 'Charge Per Month',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.currency_rupee), // Rupee icon
+                ),
+                keyboardType: TextInputType.number,
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.digitsOnly
+                ],
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter the charge per month';
+                  }
+                  return null;
+                },
+                onSaved: (value) {
+                  chargePerMonth = int.parse(value!);
                 },
               ),
               const SizedBox(height: 10),
@@ -245,6 +273,7 @@ class _EditStudentFormState extends State<EditStudentForm> {
                         widget.studentId,
                         studentName!,
                         studentBatch!,
+                        chargePerMonth!,
                         joinedDate!,
                         isActive!,
                         isLeft!,

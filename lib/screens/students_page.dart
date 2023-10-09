@@ -69,7 +69,7 @@ class _StudentsScreenState extends State<StudentsScreen>
                   .collection('users')
                   .doc(user.uid)
                   .collection('students')
-                  .orderBy('joinedDate', descending: true)
+                  .orderBy('joinedDate', descending: false)
                   .limit(15)
                   .snapshots(),
               builder: (context, snapshot) {
@@ -91,7 +91,7 @@ class _StudentsScreenState extends State<StudentsScreen>
                           MyListTile(
                             title: studentDoc['studentName'] ?? '',
                             subtitle:
-                                'Batch: ${studentDoc['studentBatch']} | ID: ${studentDoc['studentId']}' ??
+                                'Batch: ${studentDoc['studentBatch']} | ID: ${studentDoc['nextBillInDays']}' ??
                                     '',
                             onTap: () {
                               // Handle onTap action for each student
@@ -123,7 +123,7 @@ class _StudentsScreenState extends State<StudentsScreen>
                   .doc(user.uid)
                   .collection('students')
                   .where('isActive', isEqualTo: true)
-                  .orderBy('joinedDate', descending: true)
+                  .orderBy('joinedDate', descending: false)
                   .limit(15)
                   .snapshots(),
               builder: (context, snapshot) {
@@ -167,7 +167,7 @@ class _StudentsScreenState extends State<StudentsScreen>
                   .doc(user.uid)
                   .collection('students')
                   .where('isLeft', isEqualTo: true)
-                  .orderBy('joinedDate', descending: true)
+                  .orderBy('joinedDate', descending: false)
                   .limit(15)
                   .snapshots(),
               builder: (context, snapshot) {

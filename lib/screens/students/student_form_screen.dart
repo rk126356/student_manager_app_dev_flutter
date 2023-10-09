@@ -15,7 +15,7 @@ class CreateStudentScreen extends StatelessWidget {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Create Student'),
+          title: const Text('Create Student'),
         ),
         body: SingleChildScrollView(
           child: Padding(
@@ -37,20 +37,31 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   String? studentName;
   String? studentBatch;
-  String? lastPaidDate = '';
+  int? chargePerMonth;
+  String? joinedDate;
   bool? isActive = true;
   bool? isLeft = false;
   bool isUnpaid = true; // Default to Unpaid
   bool isPaid = false; // Default to Unpaid
 
+  @override
+  void initState() {
+    super.initState();
+    // Initialize joinedDate with the current date
+    final currentDate = DateTime.now();
+    joinedDate = "${currentDate.day}/${currentDate.month}/${currentDate.year}";
+  }
+
   Future<void> addStudentToFirestore(
     String uid,
     String studentName,
     String studentBatch,
+    String joinedDate,
     bool isActive,
     bool isLeft,
     bool isUnpaid,
     bool isPaid,
+    int chargePerMonth,
   ) async {
     final CollectionReference usersCollection =
         FirebaseFirestore.instance.collection('users');
@@ -63,22 +74,21 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
         userDocument.collection('students');
 
     // Generate a unique 8-digit ID for the student
-    final String studentId = Uuid().v4().substring(0, 8);
-
-    // Set the joined date to the current date
-    final String currentJoinedDate =
-        "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}";
+    final String studentId = const Uuid().v4().substring(0, 8);
 
     // Add a new document with student data and the generated ID
     await studentsCollection.doc(studentId).set({
       'studentId': studentId,
       'studentName': studentName,
       'studentBatch': studentBatch,
-      'joinedDate': currentJoinedDate, // Set joinedDate to the current date
+      'joinedDate': joinedDate,
       'isActive': isActive,
       'isLeft': isLeft,
       'isUnpaid': isUnpaid,
       'isPaid': isPaid,
+      'chargePerMonth': chargePerMonth,
+      'nextBillInDays': 2,
+      'totalUnpaidBills': 0
     });
 
     print('Student data added to Firestore with ID: $studentId');
@@ -93,7 +103,7 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
       child: Column(
         children: [
           TextFormField(
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               labelText: 'Student Name',
               border: OutlineInputBorder(),
             ),
@@ -107,9 +117,9 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
               studentName = value;
             },
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           TextFormField(
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               labelText: 'Student Batch',
               border: OutlineInputBorder(),
             ),
@@ -123,9 +133,43 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
               studentBatch = value;
             },
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
+          TextFormField(
+            decoration: const InputDecoration(
+              labelText: 'Charge Per Month',
+              border: OutlineInputBorder(),
+              prefixIcon: Icon(Icons.currency_rupee), // Rupee icon
+            ),
+            keyboardType: TextInputType.number,
+            inputFormatters: <TextInputFormatter>[
+              FilteringTextInputFormatter.digitsOnly
+            ],
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter the charge per month';
+              }
+              return null;
+            },
+            onSaved: (value) {
+              chargePerMonth = int.parse(value!);
+            },
+          ),
+          const SizedBox(height: 10),
+          InkWell(
+            onTap: () {
+              _selectDate(context);
+            },
+            child: InputDecorator(
+              decoration: const InputDecoration(
+                labelText: 'Joined Date',
+                border: OutlineInputBorder(),
+              ),
+              child: Text(joinedDate ?? ''),
+            ),
+          ),
+          const SizedBox(height: 10),
           CheckboxListTile(
-            title: Text('Active'),
+            title: const Text('Active'),
             value: isActive,
             onChanged: (value) {
               setState(() {
@@ -138,7 +182,7 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
             },
           ),
           CheckboxListTile(
-            title: Text('Left'),
+            title: const Text('Left'),
             value: isLeft,
             onChanged: (value) {
               setState(() {
@@ -150,7 +194,7 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
             },
           ),
           CheckboxListTile(
-            title: Text('Unpaid'),
+            title: const Text('Unpaid'),
             value: isUnpaid,
             onChanged: (value) {
               setState(() {
@@ -163,7 +207,7 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
             },
           ),
           CheckboxListTile(
-            title: Text('Paid'),
+            title: const Text('Paid'),
             value: isPaid,
             onChanged: (value) {
               setState(() {
@@ -175,21 +219,46 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
               });
             },
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           ElevatedButton(
             onPressed: () {
               if (_formKey.currentState!.validate()) {
                 _formKey.currentState!.save();
-                addStudentToFirestore(user.uid!, studentName!, studentBatch!,
-                    isActive!, isLeft!, isUnpaid, isPaid);
+                addStudentToFirestore(
+                    user.uid!,
+                    studentName!,
+                    studentBatch!,
+                    joinedDate!,
+                    isActive!,
+                    isLeft!,
+                    isUnpaid,
+                    isPaid,
+                    chargePerMonth!); // Pass chargePerMonth to the function
                 // Trigger a rebuild of StudentsScreen
                 Navigator.pop(context);
               }
             },
-            child: Text('Create Student'),
+            child: const Text('Create Student'),
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    DateTime? selectedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+
+    if (selectedDate != null) {
+      final formattedDate =
+          "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}";
+      setState(() {
+        joinedDate = formattedDate;
+      });
+    }
   }
 }

@@ -11,6 +11,7 @@ import 'package:student_manager_app_dev_flutter/components/last_month.dart';
 import 'package:student_manager_app_dev_flutter/components/this_month.dart';
 import 'package:student_manager_app_dev_flutter/models/user_model.dart';
 import 'package:student_manager_app_dev_flutter/providers/user_provider.dart';
+import 'package:student_manager_app_dev_flutter/utils/bill_generator.dart';
 import 'package:student_manager_app_dev_flutter/widgets/tab_button_widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -26,9 +27,18 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedMonthIndex = 0; // 0 for "This Month", 1 for "Last Month"
   int _selectedTabIndex = 0;
+  bool _billGenerated = false;
 
   @override
   Widget build(BuildContext context) {
+    var user = Provider.of<UserProvider>(context, listen: false).userData;
+
+    if (!_billGenerated) {
+      BillGenerator.generateBills(user.uid!);
+      print("Bill Generated");
+      _billGenerated = true;
+    }
+
     return Scaffold(
       appBar: AppBar(
         actions: [
