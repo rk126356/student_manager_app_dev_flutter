@@ -16,13 +16,10 @@ class UpcomingPaymentsThisMonthTab extends StatelessWidget {
         .collection('students');
 
     return StreamBuilder<QuerySnapshot>(
-      stream: paymentsCollection
-          .orderBy('nextBillDate',
-              descending: false) // Sort payments by date in ascending order
-          .snapshots(),
+      stream: paymentsCollection.snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         }
 
         if (snapshot.hasError) {
@@ -30,11 +27,14 @@ class UpcomingPaymentsThisMonthTab extends StatelessWidget {
         }
 
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return Center(child: Text('No upcoming payments.'));
+          return const Center(child: Text('No upcoming payments.'));
         }
 
         final currentDate = DateTime.now();
-        final sevenDaysFromNow = currentDate.add(Duration(days: 30));
+        final currentMonth = currentDate.month;
+        final currentYear = currentDate.year;
+        final firstDayOfCurrentMonth = DateTime(currentYear, currentMonth, 1);
+        final sevenDaysFromNow = currentDate.add(const Duration(days: 30));
 
         return ListView.builder(
           itemCount: snapshot.data!.docs.length,
@@ -49,6 +49,9 @@ class UpcomingPaymentsThisMonthTab extends StatelessWidget {
                 nextBillDate is String &&
                 DateFormat('dd/MM/yy')
                     .parse(nextBillDate)
+                    .isAfter(firstDayOfCurrentMonth) &&
+                DateFormat('dd/MM/yy')
+                    .parse(nextBillDate)
                     .isBefore(sevenDaysFromNow)) {
               final studentName = paymentData['studentName'];
               final studentBatch = paymentData['studentBatch'];
@@ -59,15 +62,35 @@ class UpcomingPaymentsThisMonthTab extends StatelessWidget {
                 DateFormat('dd/MM/yy').parse(nextBillDate),
               );
 
-              return ListTile(
-                title: Text('$studentName - Batch: $studentBatch'),
-                subtitle: Text(
-                    'Charge: $chargePerMonth - Date: $formattedNextBillDate'),
-                // Add more payment details as needed
+              return Card(
+                elevation: 4, // Adjust the elevation as needed
+                margin: const EdgeInsets.all(8), // Adjust the margin as needed
+                child: ListTile(
+                  title: Text(
+                    studentBatch != null
+                        ? "$studentName - Batch: $studentBatch"
+                        : studentName,
+                    style: const TextStyle(
+                      fontSize: 16, // Adjust the font size as needed
+                      fontWeight:
+                          FontWeight.bold, // Apply bold style if desired
+                    ),
+                  ),
+                  subtitle: Text(
+                    'Fee: ₹$chargePerMonth | $formattedNextBillDate',
+                    style: const TextStyle(
+                      fontSize: 14, // Adjust the font size as needed
+                      // You can customize other text styles here, e.g., color
+                    ),
+                  ),
+                  onTap: () {
+                    // Handle onTap for each payment if needed
+                  },
+                ),
               );
             } else {
               // Skip payments with nextBillDate outside of the 7-day window
-              return SizedBox.shrink();
+              return const SizedBox.shrink();
             }
           },
         );

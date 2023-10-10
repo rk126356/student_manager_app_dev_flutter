@@ -71,15 +71,14 @@ class _EditStudentFormState extends State<EditStudentForm> {
   }
 
   Future<void> updateStudentInFirestore(
-      String studentId,
-      String studentName,
-      String studentBatch,
-      int chargePerMonth,
-      String joinedDate,
-      bool isActive,
-      bool isLeft,
-      bool isUnpaid,
-      bool isPaid) async {
+    String studentId,
+    String studentName,
+    String studentBatch,
+    int chargePerMonth,
+    String joinedDate,
+    bool isActive,
+    bool isLeft,
+  ) async {
     final CollectionReference usersCollection =
         FirebaseFirestore.instance.collection('users');
 
@@ -100,11 +99,28 @@ class _EditStudentFormState extends State<EditStudentForm> {
       'joinedDate': joinedDate,
       'isActive': isActive,
       'isLeft': isLeft,
-      'isUnpaid': isUnpaid,
-      'isPaid': isPaid,
     });
 
     print('Student data updated in Firestore with ID: ${widget.studentId}');
+  }
+
+  Future<void> deleteStudentFromFirestore(String studentId) async {
+    final CollectionReference usersCollection =
+        FirebaseFirestore.instance.collection('users');
+
+    var user = Provider.of<UserProvider>(context, listen: false).userData;
+
+    // Create a document for the user with the provided UID
+    DocumentReference userDocument = usersCollection.doc(user.uid);
+
+    // Add a subcollection named 'students'
+    CollectionReference studentsCollection =
+        userDocument.collection('students');
+
+    // Delete the document with the provided studentId
+    await studentsCollection.doc(widget.studentId).delete();
+
+    print('Student deleted from Firestore with ID: ${widget.studentId}');
   }
 
   @override
@@ -123,7 +139,7 @@ class _EditStudentFormState extends State<EditStudentForm> {
           return const CircularProgressIndicator();
         }
 
-// Load data only once
+        // Load data only once
         if (!_dataLoaded) {
           var studentData = snapshot.data!.data() as Map<String, dynamic>;
 
@@ -133,8 +149,6 @@ class _EditStudentFormState extends State<EditStudentForm> {
           joinedDate = studentData['joinedDate'];
           isActive = studentData['isActive'];
           isLeft = studentData['isLeft'];
-          isUnpaid = studentData['isUnpaid'];
-          isPaid = studentData['isPaid'];
 
           // Set the flag to true to indicate data has been loaded
           _dataLoaded = true;
@@ -226,52 +240,67 @@ class _EditStudentFormState extends State<EditStudentForm> {
                   });
                 },
               ),
-              CheckboxListTile(
-                title: const Text('Unpaid'),
-                value: isUnpaid,
-                onChanged: (value) {
-                  setState(() {
-                    isUnpaid = value!;
-                    if (value) {
-                      // Unselect Paid if Unpaid is selected
-                      isPaid = false;
-                    }
-                  });
-                },
-              ),
-              CheckboxListTile(
-                title: const Text('Paid'),
-                value: isPaid,
-                onChanged: (value) {
-                  setState(() {
-                    isPaid = value!;
-                    if (value) {
-                      // Unselect Unpaid if Paid is selected
-                      isUnpaid = false;
-                    }
-                  });
-                },
-              ),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
                     _formKey.currentState!.save();
                     updateStudentInFirestore(
-                        widget.studentId,
-                        studentName!,
-                        studentBatch!,
-                        chargePerMonth!,
-                        joinedDate!,
-                        isActive!,
-                        isLeft!,
-                        isUnpaid,
-                        isPaid);
+                      widget.studentId,
+                      studentName!,
+                      studentBatch!,
+                      chargePerMonth!,
+                      joinedDate!,
+                      isActive!,
+                      isLeft!,
+                    );
                     // Trigger a rebuild of StudentsScreen
                     Navigator.pop(context);
                   }
                 },
                 child: const Text('Update Student'),
+              ),
+              ElevatedButton(
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(Colors
+                      .red), // Change the color to your desired background color
+                ),
+                onPressed: () {
+                  // Show a confirmation dialog before deleting
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text('Delete Student'),
+                        content: Text(
+                            'Are you sure you want to delete this student?'),
+                        actions: <Widget>[
+                          TextButton(
+                            child: Text('Cancel'),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                          TextButton(
+                            child: Text('Delete'),
+                            onPressed: () {
+                              // Perform the deletion operation here
+                              deleteStudentFromFirestore(widget.studentId);
+                              Navigator.of(context)
+                                  .pop(); // Close the confirmation dialog
+                              Navigator.of(context)
+                                  .pop(); // Close EditStudentScreen
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+                child: Text(
+                  'Delete Student',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
             ],
           ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:student_manager_app_dev_flutter/components/NavBar.dart';
+import 'package:student_manager_app_dev_flutter/components/all_time.dart';
 import 'package:student_manager_app_dev_flutter/components/home_batches_tab.dart';
 import 'package:student_manager_app_dev_flutter/components/home_paid_tab.dart';
 import 'package:student_manager_app_dev_flutter/components/home_students_tab.dart';
@@ -41,8 +42,10 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         actions: [
           IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () {},
+            icon: const Icon(Icons.search),
+            onPressed: () {
+              Navigator.pushNamed(context, '/search-student');
+            },
           ),
         ],
         title: const Text("Home"),
@@ -82,7 +85,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         ToggleButtons(
                           isSelected: [
                             _selectedMonthIndex == 0,
-                            _selectedMonthIndex == 1
+                            _selectedMonthIndex == 1,
+                            _selectedMonthIndex == 2
                           ],
                           onPressed: (index) {
                             setState(() {
@@ -105,7 +109,17 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: Text(
                                 "Last Month",
                                 style: TextStyle(
-                                    color: _selectedMonthIndex != 0
+                                    color: _selectedMonthIndex == 1
+                                        ? Colors.white
+                                        : Colors.white70),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                "All Time",
+                                style: TextStyle(
+                                    color: _selectedMonthIndex == 2
                                         ? Colors.white
                                         : Colors.white70),
                               ),
@@ -119,10 +133,15 @@ class _HomeScreenState extends State<HomeScreen> {
                             padding: EdgeInsets.all(8.0),
                             child: ThisMonth(),
                           )
-                        : const Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: LastMonth(),
-                          ),
+                        : _selectedMonthIndex == 1
+                            ? const Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: LastMonth(),
+                              )
+                            : const Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: AllTime(),
+                              ),
                     const SizedBox(
                       height: 20,
                     ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'package:student_manager_app_dev_flutter/providers/user_provider.dart';
+import 'package:student_manager_app_dev_flutter/screens/students/inside_students_screen.dart';
 
 class InsideBatchesScreen extends StatefulWidget {
   final String batchName;
@@ -29,7 +30,7 @@ class _InsideBatchesScreenState extends State<InsideBatchesScreen> {
       appBar: AppBar(
         actions: [
           IconButton(
-            icon: Icon(Icons.refresh), // Add the refresh icon here
+            icon: const Icon(Icons.refresh),
             onPressed: () {
               // Call the refresh function here
               refreshPage();
@@ -47,13 +48,14 @@ class _InsideBatchesScreenState extends State<InsideBatchesScreen> {
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
+            return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
+            return Center(child: Text('Error: ${snapshot.error}'));
           }
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Text('No students available in this batch.');
+            return const Center(
+                child: Text('No students available in this batch.'));
           }
 
           final studentList = snapshot.data!.docs;
@@ -67,37 +69,68 @@ class _InsideBatchesScreenState extends State<InsideBatchesScreen> {
               final chargePerMonth = studentData['chargePerMonth'] ?? 0.0;
               final studentId = studentData['studentId'];
 
-              return ListTile(
-                title: Text(studentName),
-                subtitle:
-                    Text('Batch: ${widget.batchName} | Fee: $chargePerMonth'),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ElevatedButton(
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(
-                            Colors.grey,
-                          ),
-                        ),
-                        onPressed: () {
-                          showRemoveDialog(studentId);
-                        },
-                        child: const Text("Remove")),
-                    const SizedBox(
-                      width: 5,
+              return Card(
+                elevation: 4,
+                margin: const EdgeInsets.all(8),
+                child: ListTile(
+                  title: Text(
+                    studentName,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
-                    ElevatedButton(
+                  ),
+                  subtitle: Text(
+                    'Batch: ${widget.batchName} | Fee: $chargePerMonth',
+                    style: const TextStyle(
+                      fontSize: 14,
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            InsideStudentScreen(studentId: studentId),
+                      ),
+                    );
+                  },
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ElevatedButton(
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all<Color>(
                             Colors.red,
                           ),
                         ),
                         onPressed: () {
-                          deleteStudent(studentId);
+                          showRemoveDialog(studentId);
                         },
-                        child: const Text("Delete")),
-                  ],
+                        child: const Text("Remove"),
+                      ),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      ElevatedButton(
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all<Color>(
+                            Colors.blue,
+                          ),
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  InsideStudentScreen(studentId: studentId),
+                            ),
+                          );
+                        },
+                        child: const Text("Info"),
+                      ),
+                    ],
+                  ),
                 ),
               );
             },

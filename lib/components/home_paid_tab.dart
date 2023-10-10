@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:student_manager_app_dev_flutter/providers/user_provider.dart';
+import 'package:student_manager_app_dev_flutter/screens/payments/edit_payments_screen.dart';
 import 'package:student_manager_app_dev_flutter/widgets/my_list_tile_widget.dart';
 
 class HomePaidTab extends StatelessWidget {
@@ -23,7 +24,7 @@ class HomePaidTab extends StatelessWidget {
           .where('isPaid', isEqualTo: true) // Filter only paid payments
           .orderBy('billDate',
               descending: true) // Sort payments by date in descending order
-          .limit(20) // Limit the results to 20 payments
+          .limit(15) // Limit the results to 15 payments
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -50,12 +51,40 @@ class HomePaidTab extends StatelessWidget {
           final formattedDate = DateFormat('MMM dd, yyyy')
               .format(DateTime.parse(paymentDateString));
 
-          final paidPaymentTile = MyListTile(
-            title: studentName,
-            subtitle: 'Paid ₹$chargePerMonth | $formattedDate',
-            onTap: () {
-              // Handle onTap for each paid payment if needed
-            },
+          final paidPaymentTile = Card(
+            color: Colors.green, // You can customize the color
+            elevation: 4,
+            margin: const EdgeInsets.all(8),
+            child: ListTile(
+              leading: const Icon(Icons.check_circle, color: Colors.white),
+              title: Text(
+                '$studentName - Batch: $studentBatch',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: Colors.white,
+                ),
+              ),
+              subtitle: Text(
+                'Fee: $chargePerMonth | Bill Date: $formattedDate',
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.white,
+                ),
+              ),
+              trailing: const Icon(Icons.arrow_right, color: Colors.white),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EditPaymentsScreen(
+                        studentId: paymentData['studentId'],
+                        billDate: paymentData['billDate'],
+                        userId: user.uid!),
+                  ),
+                );
+              },
+            ),
           );
 
           paidPayments.add(paidPaymentTile);

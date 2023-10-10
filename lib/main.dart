@@ -8,6 +8,7 @@ import 'package:student_manager_app_dev_flutter/screens/batches_page.dart';
 import 'package:student_manager_app_dev_flutter/screens/home_page.dart';
 import 'package:student_manager_app_dev_flutter/screens/login_screen.dart';
 import 'package:student_manager_app_dev_flutter/screens/payments_page.dart';
+import 'package:student_manager_app_dev_flutter/screens/search_screen.dart';
 import 'package:student_manager_app_dev_flutter/screens/students/edit_student_screen.dart';
 import 'package:student_manager_app_dev_flutter/screens/students/student_form_screen.dart';
 import 'package:student_manager_app_dev_flutter/screens/students_page.dart';
@@ -71,6 +72,7 @@ class MyApp extends StatelessWidget {
         '/upcoming-payments': (BuildContext context) =>
             const UpcomingPaymentsScreen(),
         '/new-student': (BuildContext context) => CreateStudentScreen(),
+        '/search-student': (BuildContext context) => const SearchScreen(),
       },
       debugShowCheckedModeBanner: false,
     );

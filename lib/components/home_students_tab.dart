@@ -2,7 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:student_manager_app_dev_flutter/providers/user_provider.dart';
+import 'package:student_manager_app_dev_flutter/screens/students/edit_student_screen.dart';
+import 'package:student_manager_app_dev_flutter/screens/students/inside_students_screen.dart';
+import 'package:student_manager_app_dev_flutter/screens/students/student_bills_screen.dart';
+import 'package:student_manager_app_dev_flutter/widgets/home_student_list_tile.dart';
 import 'package:student_manager_app_dev_flutter/widgets/my_list_tile_widget.dart';
+import 'package:student_manager_app_dev_flutter/widgets/students_list_widget.dart';
 
 class HomeStudentsTab extends StatelessWidget {
   const HomeStudentsTab({Key? key});
@@ -38,15 +43,42 @@ class HomeStudentsTab extends StatelessWidget {
             for (var studentDoc in studentList)
               Column(
                 children: [
-                  MyListTile(
+                  StudentListTile(
                     title: studentDoc['studentName'] ?? '',
-                    subtitle: 'Batch: ${studentDoc['studentBatch']}' ?? '',
+                    subtitle:
+                        'Batch: ${studentDoc['studentBatch']} | Fee: ₹${studentDoc['chargePerMonth']}' ??
+                            '',
                     onTap: () {
                       // Handle onTap action for each student
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => InsideStudentScreen(
+                              studentId: studentDoc['studentId']),
+                        ),
+                      );
                     },
-                  ),
-                  const Divider(
-                    color: Colors.white24,
+                    onPaymentsTap: () {
+                      // Handle "Payments" button tap
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => StudentBillsScreen(
+                            studentId: studentDoc['studentId'],
+                          ),
+                        ),
+                      );
+                    },
+                    onEditTap: () {
+                      // Handle "Edit" button tap
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => InsideStudentScreen(
+                              studentId: studentDoc['studentId']),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),

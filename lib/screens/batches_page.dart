@@ -72,7 +72,7 @@ class _BatchesScreenState extends State<BatchesScreen> {
       appBar: AppBar(
         actions: [
           IconButton(
-            icon: Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh),
             onPressed: () {
               // Call the refresh function here
               Navigator.pushReplacementNamed(context, '/batches');
@@ -94,20 +94,35 @@ class _BatchesScreenState extends State<BatchesScreen> {
             final studentCount = batchCounts[batchName];
             final totalCharge = batchTotalCharge[batchName];
 
-            return ListTile(
-              title: Text('$batchName'),
-              subtitle: Text(
-                  'Total Student: ${studentCount ?? 0} | Batch Value: ${totalCharge ?? 0.0}'),
-              onTap: () {
-                // Navigate to InsideBatchesScreen and pass batchName as a parameter
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        InsideBatchesScreen(batchName: batchName),
+            return Card(
+              elevation: 4,
+              margin: const EdgeInsets.all(8),
+              child: ListTile(
+                title: Text(
+                  '$batchName',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
-                );
-              },
+                ),
+                subtitle: Text(
+                  'Total Students: ${studentCount ?? 0} | Batch Value: ₹${totalCharge ?? 0.0}',
+                  style: const TextStyle(
+                    fontSize: 14,
+                  ),
+                ),
+                trailing: const Icon(Icons.arrow_right, color: Colors.black),
+                onTap: () {
+                  // Navigate to InsideBatchesScreen and pass batchName as a parameter
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          InsideBatchesScreen(batchName: batchName),
+                    ),
+                  );
+                },
+              ),
             );
           },
         ),

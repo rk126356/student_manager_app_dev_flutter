@@ -15,8 +15,6 @@ class HomeUpcomingTab extends StatelessWidget {
     var user = Provider.of<UserProvider>(context, listen: false).userData;
     var data = Provider.of<UserProvider>(context, listen: false);
 
-    int _noOfUpcomingPayments = 0;
-
     CollectionReference paymentsCollection = FirebaseFirestore.instance
         .collection('users')
         .doc(user.uid)
@@ -25,7 +23,7 @@ class HomeUpcomingTab extends StatelessWidget {
     CollectionReference paymentsCollection1 = FirebaseFirestore.instance
         .collection('users')
         .doc(user.uid)
-        .collection('payments');
+        .collection('students');
 
     paymentsCollection1.get().then((QuerySnapshot querySnapshot) {
       int noOfUpcomingPayments = querySnapshot.size;
@@ -41,7 +39,7 @@ class HomeUpcomingTab extends StatelessWidget {
     final sevenDaysFromNow = currentDate.add(const Duration(days: 30));
 
     return StreamBuilder<QuerySnapshot>(
-      stream: paymentsCollection.snapshots(),
+      stream: paymentsCollection.limit(15).snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -72,11 +70,8 @@ class HomeUpcomingTab extends StatelessWidget {
                   .parse(nextBillDate)
                   .isBefore(sevenDaysFromNow)) {
             final studentName = paymentData['studentName'];
+            final batchName = paymentData['studentBatch'];
             final chargePerMonth = paymentData['chargePerMonth'];
-
-            _noOfUpcomingPayments++;
-
-            data.setNoOfUpcomingPayments(_noOfUpcomingPayments);
 
             // Format the nextBillDate to the desired format
             final formattedNextBillDate = DateFormat('MMM dd, yyyy').format(
@@ -84,12 +79,30 @@ class HomeUpcomingTab extends StatelessWidget {
             );
 
             // Create a ListTile widget for each upcoming payment
-            final upcomingPaymentTile = MyListTile(
-              title: studentName,
-              subtitle: 'RS: $chargePerMonth | $formattedNextBillDate',
-              onTap: () {
-                // Handle onTap for each payment if needed
-              },
+            final upcomingPaymentTile = Card(
+              elevation: 4, // Adjust the elevation as needed
+              margin: const EdgeInsets.all(8), // Adjust the margin as needed
+              child: ListTile(
+                title: Text(
+                  batchName != null
+                      ? "$studentName - Batch: $batchName"
+                      : studentName,
+                  style: const TextStyle(
+                    fontSize: 16, // Adjust the font size as needed
+                    fontWeight: FontWeight.bold, // Apply bold style if desired
+                  ),
+                ),
+                subtitle: Text(
+                  'Fee: ₹$chargePerMonth | $formattedNextBillDate',
+                  style: const TextStyle(
+                    fontSize: 14, // Adjust the font size as needed
+                    // You can customize other text styles here, e.g., color
+                  ),
+                ),
+                onTap: () {
+                  // Handle onTap for each payment if needed
+                },
+              ),
             );
 
             upcomingPayments.add(upcomingPaymentTile);

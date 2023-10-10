@@ -19,7 +19,7 @@ class MyListTile extends StatelessWidget {
       leading: const CircleAvatar(
         // Use a circular avatar for the leading icon
         backgroundColor: Colors.white, // Circle background color
-        child: Icon(Icons.person,
+        child: Icon(Icons.school,
             color: Colors.blueGrey), // Icon inside the circle
       ),
       title: Text(
@@ -37,8 +37,8 @@ class MyListTile extends StatelessWidget {
           fontSize: 14, // Subtitle font size
         ),
       ),
-      trailing:
-          const Icon(Icons.arrow_forward, color: Colors.white), // Trailing icon color
+      trailing: const Icon(Icons.arrow_forward,
+          color: Colors.white), // Trailing icon color
       onTap: onTap,
     );
   }

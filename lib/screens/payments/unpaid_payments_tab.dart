@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:student_manager_app_dev_flutter/providers/user_provider.dart';
+import 'package:student_manager_app_dev_flutter/screens/payments/edit_payments_screen.dart';
 
 class UnpaidPaymentsTab extends StatelessWidget {
   const UnpaidPaymentsTab({Key? key});
@@ -23,7 +24,7 @@ class UnpaidPaymentsTab extends StatelessWidget {
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         }
 
         if (snapshot.hasError) {
@@ -31,7 +32,7 @@ class UnpaidPaymentsTab extends StatelessWidget {
         }
 
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return Center(child: Text('No paid payments available.'));
+          return const Center(child: Text('No paid payments available.'));
         }
 
         // Extract and group payments by months
@@ -52,10 +53,41 @@ class UnpaidPaymentsTab extends StatelessWidget {
                 final formattedDate = DateFormat('MMM dd, yyyy')
                     .format(DateTime.parse(paymentDateString));
 
-                return ListTile(
-                  title: Text('$studentName - Batch: $studentBatch'),
-                  subtitle:
-                      Text('Charge: $chargePerMonth - Date: $formattedDate'),
+                return Card(
+                  color: Colors.red, // You can customize the color
+                  elevation: 4,
+                  margin: const EdgeInsets.all(8),
+                  child: ListTile(
+                    leading: const Icon(Icons.cancel, color: Colors.white),
+                    title: Text(
+                      '$studentName - Batch: $studentBatch',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: Colors.white,
+                      ),
+                    ),
+                    subtitle: Text(
+                      'Fee: $chargePerMonth | Bill Date: $formattedDate',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.white,
+                      ),
+                    ),
+                    trailing:
+                        const Icon(Icons.arrow_right, color: Colors.white),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => EditPaymentsScreen(
+                              studentId: paymentData['studentId'],
+                              billDate: paymentData['billDate'],
+                              userId: user.uid!),
+                        ),
+                      );
+                    },
+                  ),
                 );
               }).toList(),
             );

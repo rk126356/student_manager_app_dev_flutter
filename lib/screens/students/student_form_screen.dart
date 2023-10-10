@@ -42,8 +42,6 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
   String? joinedDate;
   bool? isActive = true;
   bool? isLeft = false;
-  bool isUnpaid = true; // Default to Unpaid
-  bool isPaid = false; // Default to Unpaid
 
   @override
   void initState() {
@@ -60,8 +58,6 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
     String joinedDate,
     bool isActive,
     bool isLeft,
-    bool isUnpaid,
-    bool isPaid,
     int chargePerMonth,
   ) async {
     final CollectionReference usersCollection =
@@ -94,8 +90,6 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
       'nextBillDate': DateFormat('dd/MM/yyyy').format(nextBillDate),
       'isActive': isActive,
       'isLeft': isLeft,
-      'isUnpaid': isUnpaid,
-      'isPaid': isPaid,
       'chargePerMonth': chargePerMonth,
     });
 
@@ -201,32 +195,6 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
               });
             },
           ),
-          CheckboxListTile(
-            title: const Text('Unpaid'),
-            value: isUnpaid,
-            onChanged: (value) {
-              setState(() {
-                isUnpaid = value!;
-                if (value) {
-                  // Unselect Paid if Unpaid is selected
-                  isPaid = false;
-                }
-              });
-            },
-          ),
-          CheckboxListTile(
-            title: const Text('Paid'),
-            value: isPaid,
-            onChanged: (value) {
-              setState(() {
-                isPaid = value!;
-                if (value) {
-                  // Unselect Unpaid if Paid is selected
-                  isUnpaid = false;
-                }
-              });
-            },
-          ),
           const SizedBox(height: 20),
           ElevatedButton(
             onPressed: () {
@@ -239,8 +207,6 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
                     joinedDate!,
                     isActive!,
                     isLeft!,
-                    isUnpaid,
-                    isPaid,
                     chargePerMonth!); // Pass chargePerMonth to the function
                 // Trigger a rebuild of StudentsScreen
                 Navigator.pop(context);
@@ -254,11 +220,17 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
   }
 
   Future<void> _selectDate(BuildContext context) async {
+    DateTime currentDate = DateTime.now();
+    DateTime firstDateOfMonth =
+        DateTime(currentDate.year, currentDate.month, 1);
+    DateTime lastDateOfMonth =
+        DateTime(currentDate.year, currentDate.month + 1, 0);
+
     DateTime? selectedDate = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
+      initialDate: currentDate,
+      firstDate: firstDateOfMonth,
+      lastDate: lastDateOfMonth,
     );
 
     if (selectedDate != null) {

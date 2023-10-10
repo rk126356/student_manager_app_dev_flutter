@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
@@ -34,8 +35,7 @@ class NavBar extends StatelessWidget {
               color: Colors.blue,
               image: DecorationImage(
                   fit: BoxFit.fill,
-                  image: NetworkImage(
-                      'https://oflutter.com/wp-content/uploads/2021/02/profile-bg3.jpg')),
+                  image: AssetImage('assets/images/profile-bg3.jpg')),
             ),
           ),
           ListTile(
@@ -55,16 +55,6 @@ class NavBar extends StatelessWidget {
             leading: const Icon(Icons.person),
             title: const Text('Students'),
             onTap: () => Navigator.pushNamed(context, '/students'),
-          ),
-          ListTile(
-            leading: const Icon(Icons.currency_rupee),
-            title: const Text('Payments'),
-            onTap: () => Navigator.pushNamed(context, '/payments'),
-          ),
-          ListTile(
-            leading: const Icon(Icons.payments),
-            title: const Text('Upcoming Payments'),
-            onTap: () => Navigator.pushNamed(context, '/upcoming-payments'),
             trailing: ClipOval(
               child: Container(
                 color: Colors.red,
@@ -72,7 +62,7 @@ class NavBar extends StatelessWidget {
                 height: 20,
                 child: Center(
                   child: Text(
-                    data.noOfUpcomingPayments.toString(),
+                    data.noOfUPayments.toString(),
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 12,
@@ -81,6 +71,16 @@ class NavBar extends StatelessWidget {
                 ),
               ),
             ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.currency_rupee),
+            title: const Text('Payments'),
+            onTap: () => Navigator.pushNamed(context, '/payments'),
+          ),
+          ListTile(
+            leading: const Icon(Icons.timer),
+            title: const Text('Upcoming Payments'),
+            onTap: () => Navigator.pushNamed(context, '/upcoming-payments'),
           ),
           const Divider(),
           ListTile(
@@ -98,8 +98,12 @@ class NavBar extends StatelessWidget {
             title: const Text('Logout'),
             leading: const Icon(Icons.logout),
             onTap: () async {
+              WidgetsFlutterBinding.ensureInitialized();
+              await Firebase.initializeApp();
               await GoogleSignIn().signOut();
               FirebaseAuth.instance.signOut();
+              Navigator.pushNamedAndRemoveUntil(
+                  context, '/login', (route) => false);
             },
           ),
         ],

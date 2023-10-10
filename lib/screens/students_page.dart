@@ -4,7 +4,10 @@ import 'package:provider/provider.dart';
 import 'package:student_manager_app_dev_flutter/components/NavBar.dart';
 import 'package:student_manager_app_dev_flutter/providers/user_provider.dart';
 import 'package:student_manager_app_dev_flutter/screens/students/edit_student_screen.dart';
+import 'package:student_manager_app_dev_flutter/screens/students/inside_students_screen.dart';
+import 'package:student_manager_app_dev_flutter/screens/students/student_bills_screen.dart';
 import 'package:student_manager_app_dev_flutter/widgets/my_list_tile_widget.dart';
+import 'package:student_manager_app_dev_flutter/widgets/students_list_widget.dart';
 
 class StudentsScreen extends StatefulWidget {
   const StudentsScreen({super.key});
@@ -69,7 +72,7 @@ class _StudentsScreenState extends State<StudentsScreen>
                   .collection('users')
                   .doc(user.uid)
                   .collection('students')
-                  .orderBy('joinedDate', descending: false)
+                  .orderBy('joinedDate', descending: true)
                   .limit(15)
                   .snapshots(),
               builder: (context, snapshot) {
@@ -88,26 +91,42 @@ class _StudentsScreenState extends State<StudentsScreen>
                     for (var studentDoc in studentList)
                       Column(
                         children: [
-                          MyListTile(
+                          StudentListTile(
                             title: studentDoc['studentName'] ?? '',
                             subtitle:
-                                'Batch: ${studentDoc['studentBatch']} | Fee: ${studentDoc['chargePerMonth']}' ??
+                                'Batch: ${studentDoc['studentBatch']} | Fee: ₹${studentDoc['chargePerMonth']}' ??
                                     '',
                             onTap: () {
                               // Handle onTap action for each student
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => EditStudentScreen(
+                                  builder: (context) => InsideStudentScreen(
                                       studentId: studentDoc['studentId']),
                                 ),
                               );
                             },
-                          ),
-                          const Divider(
-                            color: Colors.deepPurple,
-                            thickness: 1,
-                            height: 1,
+                            onPaymentsTap: () {
+                              // Handle "Payments" button tap
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => StudentBillsScreen(
+                                    studentId: studentDoc['studentId'],
+                                  ),
+                                ),
+                              );
+                            },
+                            onEditTap: () {
+                              // Handle "Edit" button tap
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => InsideStudentScreen(
+                                      studentId: studentDoc['studentId']),
+                                ),
+                              );
+                            },
                           ),
                         ],
                       ),
@@ -123,7 +142,7 @@ class _StudentsScreenState extends State<StudentsScreen>
                   .doc(user.uid)
                   .collection('students')
                   .where('isActive', isEqualTo: true)
-                  .orderBy('joinedDate', descending: false)
+                  .orderBy('joinedDate', descending: true)
                   .limit(15)
                   .snapshots(),
               builder: (context, snapshot) {
@@ -142,26 +161,42 @@ class _StudentsScreenState extends State<StudentsScreen>
                     for (var studentDoc in activeStudentList)
                       Column(
                         children: [
-                          MyListTile(
+                          StudentListTile(
                             title: studentDoc['studentName'] ?? '',
                             subtitle:
-                                'Batch: ${studentDoc['studentBatch']} | Fee: ${studentDoc['chargePerMonth']}' ??
+                                'Batch: ${studentDoc['studentBatch']} | Fee: ₹${studentDoc['chargePerMonth']}' ??
                                     '',
                             onTap: () {
                               // Handle onTap action for each student
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => EditStudentScreen(
+                                  builder: (context) => InsideStudentScreen(
                                       studentId: studentDoc['studentId']),
                                 ),
                               );
                             },
-                          ),
-                          const Divider(
-                            color: Colors.deepPurple,
-                            thickness: 1,
-                            height: 1,
+                            onPaymentsTap: () {
+                              // Handle "Payments" button tap
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => StudentBillsScreen(
+                                    studentId: studentDoc['studentId'],
+                                  ),
+                                ),
+                              );
+                            },
+                            onEditTap: () {
+                              // Handle "Edit" button tap
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => InsideStudentScreen(
+                                      studentId: studentDoc['studentId']),
+                                ),
+                              );
+                            },
                           ),
                         ],
                       ),
@@ -177,7 +212,7 @@ class _StudentsScreenState extends State<StudentsScreen>
                   .doc(user.uid)
                   .collection('students')
                   .where('isLeft', isEqualTo: true)
-                  .orderBy('joinedDate', descending: false)
+                  .orderBy('joinedDate', descending: true)
                   .limit(15)
                   .snapshots(),
               builder: (context, snapshot) {
@@ -196,26 +231,42 @@ class _StudentsScreenState extends State<StudentsScreen>
                     for (var studentDoc in leftStudentList)
                       Column(
                         children: [
-                          MyListTile(
+                          StudentListTile(
                             title: studentDoc['studentName'] ?? '',
                             subtitle:
-                                'Batch: ${studentDoc['studentBatch']} | Fee: ${studentDoc['chargePerMonth']}' ??
+                                'Batch: ${studentDoc['studentBatch']} | Fee: ₹${studentDoc['chargePerMonth']}' ??
                                     '',
                             onTap: () {
                               // Handle onTap action for each student
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => EditStudentScreen(
+                                  builder: (context) => InsideStudentScreen(
                                       studentId: studentDoc['studentId']),
                                 ),
                               );
                             },
-                          ),
-                          const Divider(
-                            color: Colors.deepPurple,
-                            thickness: 1,
-                            height: 1,
+                            onPaymentsTap: () {
+                              // Handle "Payments" button tap
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => StudentBillsScreen(
+                                    studentId: studentDoc['studentId'],
+                                  ),
+                                ),
+                              );
+                            },
+                            onEditTap: () {
+                              // Handle "Edit" button tap
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => InsideStudentScreen(
+                                      studentId: studentDoc['studentId']),
+                                ),
+                              );
+                            },
                           ),
                         ],
                       ),

@@ -22,7 +22,7 @@ class UpcomingPaymentsSevenDaysTab extends StatelessWidget {
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         }
 
         if (snapshot.hasError) {
@@ -30,11 +30,11 @@ class UpcomingPaymentsSevenDaysTab extends StatelessWidget {
         }
 
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return Center(child: Text('No upcoming payments.'));
+          return const Center(child: Text('No upcoming payments.'));
         }
 
         final currentDate = DateTime.now();
-        final sevenDaysFromNow = currentDate.add(Duration(days: 7));
+        final sevenDaysFromNow = currentDate.add(const Duration(days: 7));
 
         return ListView.builder(
           itemCount: snapshot.data!.docs.length,
@@ -59,15 +59,29 @@ class UpcomingPaymentsSevenDaysTab extends StatelessWidget {
                 DateFormat('dd/MM/yy').parse(nextBillDate),
               );
 
-              return ListTile(
-                title: Text('$studentName - Batch: $studentBatch'),
-                subtitle: Text(
-                    'Charge: $chargePerMonth - Date: $formattedNextBillDate'),
-                // Add more payment details as needed
+              return Card(
+                elevation: 4,
+                margin: const EdgeInsets.all(8),
+                child: ListTile(
+                  title: Text(
+                    '$studentName - Batch: $studentBatch',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  subtitle: Text(
+                    'Fee: ₹$chargePerMonth - Bill Date: $formattedNextBillDate',
+                    style: const TextStyle(
+                      fontSize: 14,
+                    ),
+                  ),
+                  // Add more payment details as needed
+                ),
               );
             } else {
               // Skip payments with nextBillDate outside of the 7-day window
-              return SizedBox.shrink();
+              return const SizedBox.shrink();
             }
           },
         );

@@ -61,6 +61,8 @@ class _LoginScreenState extends State<LoginScreen> {
           });
 
           print('User data stored in Firestore');
+
+          Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
         }
       } catch (error) {
         print('Error signing in with Google: $error');

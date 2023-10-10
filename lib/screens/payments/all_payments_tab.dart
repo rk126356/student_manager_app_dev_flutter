@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:student_manager_app_dev_flutter/providers/user_provider.dart';
+import 'package:student_manager_app_dev_flutter/screens/payments/edit_payments_screen.dart';
 
 class AllPaymentsTab extends StatelessWidget {
   const AllPaymentsTab({Key? key});
@@ -22,7 +23,7 @@ class AllPaymentsTab extends StatelessWidget {
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         }
 
         if (snapshot.hasError) {
@@ -30,7 +31,7 @@ class AllPaymentsTab extends StatelessWidget {
         }
 
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return Center(child: Text('No payments available.'));
+          return const Center(child: Text('No payments available.'));
         }
 
         return ListView.builder(
@@ -38,19 +39,56 @@ class AllPaymentsTab extends StatelessWidget {
           itemBuilder: (context, index) {
             final paymentData =
                 snapshot.data!.docs[index].data() as Map<String, dynamic>;
-
             final studentName = paymentData['studentName'];
             final studentBatch = paymentData['studentBatch'];
             final chargePerMonth = paymentData['chargePerMonth'];
             final paymentDateString = paymentData['billDate'];
+            final isPaid = paymentData[
+                'isPaid']; // Assuming you have a field indicating payment status
 
             final formattedDate = DateFormat('MMM dd, yyyy')
                 .format(DateTime.parse(paymentDateString));
 
-            return ListTile(
-              title: Text('$studentName - Batch: $studentBatch'),
-              subtitle: Text('Charge: $chargePerMonth - Date: $formattedDate'),
-              // Add more payment details as needed
+            // Set the background color, icon, and text style based on payment status
+            final cardColor = isPaid ? Colors.green : Colors.red;
+            final icon = isPaid ? Icons.check_circle : Icons.cancel;
+            const titleTextStyle = TextStyle(
+              fontSize: 16.0,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            );
+            const subtitleTextStyle = TextStyle(
+              fontSize: 14.0,
+              color: Colors.white,
+            );
+
+            return Card(
+              color: cardColor,
+              elevation: 4,
+              margin: const EdgeInsets.all(8),
+              child: ListTile(
+                leading: Icon(icon, color: Colors.white),
+                title: Text(
+                  '$studentName - Batch: $studentBatch',
+                  style: titleTextStyle,
+                ),
+                subtitle: Text(
+                  'Fee: $chargePerMonth - Due Date: $formattedDate',
+                  style: subtitleTextStyle,
+                ),
+                trailing: const Icon(Icons.arrow_right, color: Colors.white),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => EditPaymentsScreen(
+                          studentId: paymentData['studentId'],
+                          billDate: paymentData['billDate'],
+                          userId: user.uid!),
+                    ),
+                  );
+                },
+              ),
             );
           },
         );
