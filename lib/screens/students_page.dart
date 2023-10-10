@@ -91,7 +91,7 @@ class _StudentsScreenState extends State<StudentsScreen>
                           MyListTile(
                             title: studentDoc['studentName'] ?? '',
                             subtitle:
-                                'Batch: ${studentDoc['studentBatch']} | ID: ${studentDoc['studentId']}' ??
+                                'Batch: ${studentDoc['studentBatch']} | Fee: ${studentDoc['chargePerMonth']}' ??
                                     '',
                             onTap: () {
                               // Handle onTap action for each student
@@ -145,13 +145,23 @@ class _StudentsScreenState extends State<StudentsScreen>
                           MyListTile(
                             title: studentDoc['studentName'] ?? '',
                             subtitle:
-                                'Batch: ${studentDoc['studentBatch']}' ?? '',
+                                'Batch: ${studentDoc['studentBatch']} | Fee: ${studentDoc['chargePerMonth']}' ??
+                                    '',
                             onTap: () {
-                              // Handle onTap action for each active student
+                              // Handle onTap action for each student
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => EditStudentScreen(
+                                      studentId: studentDoc['studentId']),
+                                ),
+                              );
                             },
                           ),
                           const Divider(
-                            color: Colors.white24,
+                            color: Colors.deepPurple,
+                            thickness: 1,
+                            height: 1,
                           ),
                         ],
                       ),
@@ -189,13 +199,23 @@ class _StudentsScreenState extends State<StudentsScreen>
                           MyListTile(
                             title: studentDoc['studentName'] ?? '',
                             subtitle:
-                                'Batch: ${studentDoc['studentBatch']}' ?? '',
+                                'Batch: ${studentDoc['studentBatch']} | Fee: ${studentDoc['chargePerMonth']}' ??
+                                    '',
                             onTap: () {
-                              // Handle onTap action for each left student
+                              // Handle onTap action for each student
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => EditStudentScreen(
+                                      studentId: studentDoc['studentId']),
+                                ),
+                              );
                             },
                           ),
                           const Divider(
-                            color: Colors.white24,
+                            color: Colors.deepPurple,
+                            thickness: 1,
+                            height: 1,
                           ),
                         ],
                       ),

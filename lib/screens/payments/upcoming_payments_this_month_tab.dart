@@ -30,8 +30,11 @@ class UpcomingPaymentsThisMonthTab extends StatelessWidget {
         }
 
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return Center(child: Text('No upcoming payments for this month.'));
+          return Center(child: Text('No upcoming payments.'));
         }
+
+        final currentDate = DateTime.now();
+        final sevenDaysFromNow = currentDate.add(Duration(days: 30));
 
         return ListView.builder(
           itemCount: snapshot.data!.docs.length,
@@ -39,24 +42,33 @@ class UpcomingPaymentsThisMonthTab extends StatelessWidget {
             final paymentData =
                 snapshot.data!.docs[index].data() as Map<String, dynamic>;
 
-            final studentName = paymentData['studentName'];
-            final studentBatch = paymentData['studentBatch'];
-            final chargePerMonth = paymentData['chargePerMonth'];
             final nextBillDate = paymentData['nextBillDate'];
 
-            // Convert the nextBillDate string to a DateTime object
-            final nextBillDateTime = DateFormat('dd/MM/yy').parse(nextBillDate);
+            // Check if the nextBillDate is within the next 7 days
+            if (nextBillDate != null &&
+                nextBillDate is String &&
+                DateFormat('dd/MM/yy')
+                    .parse(nextBillDate)
+                    .isBefore(sevenDaysFromNow)) {
+              final studentName = paymentData['studentName'];
+              final studentBatch = paymentData['studentBatch'];
+              final chargePerMonth = paymentData['chargePerMonth'];
 
-            // Format the nextBillDate to the desired format
-            final formattedNextBillDate =
-                DateFormat('MMM dd, yyyy').format(nextBillDateTime);
+              // Format the nextBillDate to the desired format
+              final formattedNextBillDate = DateFormat('MMM dd, yyyy').format(
+                DateFormat('dd/MM/yy').parse(nextBillDate),
+              );
 
-            return ListTile(
-              title: Text('$studentName - Batch: $studentBatch'),
-              subtitle: Text(
-                  'Charge: $chargePerMonth - Date: $formattedNextBillDate'),
-              // Add more payment details as needed
-            );
+              return ListTile(
+                title: Text('$studentName - Batch: $studentBatch'),
+                subtitle: Text(
+                    'Charge: $chargePerMonth - Date: $formattedNextBillDate'),
+                // Add more payment details as needed
+              );
+            } else {
+              // Skip payments with nextBillDate outside of the 7-day window
+              return SizedBox.shrink();
+            }
           },
         );
       },

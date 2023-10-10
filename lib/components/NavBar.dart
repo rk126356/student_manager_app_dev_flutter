@@ -10,6 +10,7 @@ class NavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var user = Provider.of<UserProvider>(context, listen: false).userData;
+    var data = Provider.of<UserProvider>(context, listen: false);
 
     return Drawer(
       child: ListView(
@@ -69,10 +70,10 @@ class NavBar extends StatelessWidget {
                 color: Colors.red,
                 width: 20,
                 height: 20,
-                child: const Center(
+                child: Center(
                   child: Text(
-                    '8',
-                    style: TextStyle(
+                    data.noOfUpcomingPayments.toString(),
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 12,
                     ),

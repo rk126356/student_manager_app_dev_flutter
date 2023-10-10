@@ -34,18 +34,18 @@ class _UpcomingPaymentsScreenState extends State<UpcomingPaymentsScreen>
     return Scaffold(
       drawer: const NavBar(),
       appBar: AppBar(
-        title: const Text('Payments'),
+        title: const Text('Upcoming Payments'),
         bottom: TabBar(
           controller: _tabController,
           tabs: const <Widget>[
             Tab(
-              text: "Upcoming",
+              text: "In 30 Days",
             ),
             Tab(
               text: "Today",
             ),
             Tab(
-              text: "Within 7 Days",
+              text: "In 7 Days",
             ),
           ],
         ),

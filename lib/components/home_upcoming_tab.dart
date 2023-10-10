@@ -13,10 +13,26 @@ class HomeUpcomingTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var user = Provider.of<UserProvider>(context, listen: false).userData;
+    var data = Provider.of<UserProvider>(context, listen: false);
+
+    int _noOfUpcomingPayments = 0;
+
     CollectionReference paymentsCollection = FirebaseFirestore.instance
         .collection('users')
         .doc(user.uid)
         .collection('students');
+
+    CollectionReference paymentsCollection1 = FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .collection('payments');
+
+    paymentsCollection1.get().then((QuerySnapshot querySnapshot) {
+      int noOfUpcomingPayments = querySnapshot.size;
+      data.setNoOfPayments(noOfUpcomingPayments);
+    }).catchError((error) {
+      print('Error getting upcoming payments: $error');
+    });
 
     final currentDate = DateTime.now();
     final currentMonth = currentDate.month;
@@ -25,9 +41,7 @@ class HomeUpcomingTab extends StatelessWidget {
     final sevenDaysFromNow = currentDate.add(const Duration(days: 30));
 
     return StreamBuilder<QuerySnapshot>(
-      stream: paymentsCollection
-          .limit(20) // Limit the results to 20 payments
-          .snapshots(),
+      stream: paymentsCollection.snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -59,6 +73,10 @@ class HomeUpcomingTab extends StatelessWidget {
                   .isBefore(sevenDaysFromNow)) {
             final studentName = paymentData['studentName'];
             final chargePerMonth = paymentData['chargePerMonth'];
+
+            _noOfUpcomingPayments++;
+
+            data.setNoOfUpcomingPayments(_noOfUpcomingPayments);
 
             // Format the nextBillDate to the desired format
             final formattedNextBillDate = DateFormat('MMM dd, yyyy').format(
