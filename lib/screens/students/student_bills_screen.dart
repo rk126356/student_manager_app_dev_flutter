@@ -94,6 +94,7 @@ class _StudentBillsScreenState extends State<StudentBillsScreen> {
                       MaterialPageRoute(
                         builder: (context) => EditPaymentsScreen(
                             studentId: billData['studentId'],
+                            studentName: billData['studentName'],
                             billDate: billData['billDate'],
                             userId: user.uid!),
                       ),

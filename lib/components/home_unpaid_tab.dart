@@ -79,6 +79,7 @@ class HomeUnpaidTab extends StatelessWidget {
                   MaterialPageRoute(
                     builder: (context) => EditPaymentsScreen(
                         studentId: paymentData['studentId'],
+                        studentName: paymentData['studentName'],
                         billDate: paymentData['billDate'],
                         userId: user.uid!),
                   ),

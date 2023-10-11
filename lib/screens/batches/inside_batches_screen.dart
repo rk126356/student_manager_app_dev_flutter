@@ -127,7 +127,7 @@ class _InsideBatchesScreenState extends State<InsideBatchesScreen> {
                             ),
                           );
                         },
-                        child: const Text("Info"),
+                        child: const Text("Edit"),
                       ),
                     ],
                   ),

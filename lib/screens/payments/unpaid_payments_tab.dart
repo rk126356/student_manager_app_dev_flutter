@@ -68,7 +68,7 @@ class UnpaidPaymentsTab extends StatelessWidget {
                       ),
                     ),
                     subtitle: Text(
-                      'Fee: $chargePerMonth | Bill Date: $formattedDate',
+                      'Fee: ₹$chargePerMonth | Bill Date: $formattedDate',
                       style: const TextStyle(
                         fontSize: 14,
                         color: Colors.white,
@@ -82,6 +82,7 @@ class UnpaidPaymentsTab extends StatelessWidget {
                         MaterialPageRoute(
                           builder: (context) => EditPaymentsScreen(
                               studentId: paymentData['studentId'],
+                              studentName: paymentData['studentName'],
                               billDate: paymentData['billDate'],
                               userId: user.uid!),
                         ),

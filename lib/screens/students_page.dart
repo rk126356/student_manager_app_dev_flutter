@@ -37,13 +37,32 @@ class _StudentsScreenState extends State<StudentsScreen>
     var user = Provider.of<UserProvider>(context, listen: false).userData;
 
     return Scaffold(
+      floatingActionButton: ElevatedButton(
+        onPressed: () {
+          Navigator.pushNamed(context, '/new-student');
+        },
+        style: ElevatedButton.styleFrom(
+          shape: const CircleBorder(),
+          primary: Colors.blue,
+          padding: const EdgeInsets.all(20),
+          elevation: 8,
+          shadowColor: Colors.blueAccent,
+        ),
+        child: const Icon(
+          Icons.add,
+          color: Colors.white,
+          size: 30,
+        ),
+      ),
       drawer: const NavBar(),
       appBar: AppBar(
         actions: [
           IconButton(
-            icon: const Icon(Icons.add),
+            icon: const Icon(
+              Icons.search,
+            ),
             onPressed: () {
-              Navigator.pushNamed(context, '/new-student');
+              Navigator.pushNamed(context, '/search-student');
             },
           ),
         ],
@@ -66,213 +85,222 @@ class _StudentsScreenState extends State<StudentsScreen>
       body: TabBarView(
         controller: _tabController,
         children: <Widget>[
-          Center(
-            child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection('users')
-                  .doc(user.uid)
-                  .collection('students')
-                  .orderBy('joinedDate', descending: true)
-                  .limit(15)
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return CircularProgressIndicator();
-                }
-                if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                }
-                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return Text('No data available.');
-                }
-                final studentList = snapshot.data!.docs;
-                return Column(
-                  children: [
-                    for (var studentDoc in studentList)
-                      Column(
-                        children: [
-                          StudentListTile(
-                            title: studentDoc['studentName'] ?? '',
-                            subtitle:
-                                'Batch: ${studentDoc['studentBatch']} | Fee: ₹${studentDoc['chargePerMonth']}' ??
-                                    '',
-                            onTap: () {
-                              // Handle onTap action for each student
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => InsideStudentScreen(
-                                      studentId: studentDoc['studentId']),
-                                ),
-                              );
-                            },
-                            onPaymentsTap: () {
-                              // Handle "Payments" button tap
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => StudentBillsScreen(
-                                    studentId: studentDoc['studentId'],
+          SingleChildScrollView(
+            padding: EdgeInsets.only(bottom: 150),
+            child: Center(
+              child: StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(user.uid)
+                    .collection('students')
+                    .orderBy('joinedDate', descending: true)
+                    .limit(15)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  }
+                  if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  }
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return const Text('No data available.');
+                  }
+                  final studentList = snapshot.data!.docs;
+                  return Column(
+                    children: [
+                      for (var studentDoc in studentList)
+                        Column(
+                          children: [
+                            StudentListTile(
+                              title: studentDoc['studentName'] ?? '',
+                              subtitle:
+                                  'Batch: ${studentDoc['studentBatch']} | Fee: ₹${studentDoc['chargePerMonth']}' ??
+                                      '',
+                              onTap: () {
+                                // Handle onTap action for each student
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => InsideStudentScreen(
+                                        studentId: studentDoc['studentId']),
                                   ),
-                                ),
-                              );
-                            },
-                            onEditTap: () {
-                              // Handle "Edit" button tap
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => InsideStudentScreen(
-                                      studentId: studentDoc['studentId']),
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                  ],
-                );
-              },
+                                );
+                              },
+                              onPaymentsTap: () {
+                                // Handle "Payments" button tap
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => StudentBillsScreen(
+                                      studentId: studentDoc['studentId'],
+                                    ),
+                                  ),
+                                );
+                              },
+                              onEditTap: () {
+                                // Handle "Edit" button tap
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => InsideStudentScreen(
+                                        studentId: studentDoc['studentId']),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                    ],
+                  );
+                },
+              ),
             ),
           ),
-          Center(
-            child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection('users')
-                  .doc(user.uid)
-                  .collection('students')
-                  .where('isActive', isEqualTo: true)
-                  .orderBy('joinedDate', descending: true)
-                  .limit(15)
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return CircularProgressIndicator();
-                }
-                if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                }
-                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return Text('No active students available.');
-                }
-                final activeStudentList = snapshot.data!.docs;
-                return Column(
-                  children: [
-                    for (var studentDoc in activeStudentList)
-                      Column(
-                        children: [
-                          StudentListTile(
-                            title: studentDoc['studentName'] ?? '',
-                            subtitle:
-                                'Batch: ${studentDoc['studentBatch']} | Fee: ₹${studentDoc['chargePerMonth']}' ??
-                                    '',
-                            onTap: () {
-                              // Handle onTap action for each student
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => InsideStudentScreen(
-                                      studentId: studentDoc['studentId']),
-                                ),
-                              );
-                            },
-                            onPaymentsTap: () {
-                              // Handle "Payments" button tap
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => StudentBillsScreen(
-                                    studentId: studentDoc['studentId'],
+          SingleChildScrollView(
+            padding: EdgeInsets.only(bottom: 150),
+            child: Center(
+              child: StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(user.uid)
+                    .collection('students')
+                    .where('isActive', isEqualTo: true)
+                    .orderBy('joinedDate', descending: true)
+                    .limit(15)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  }
+                  if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  }
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return const Text('No active students available.');
+                  }
+                  final activeStudentList = snapshot.data!.docs;
+                  return Column(
+                    children: [
+                      for (var studentDoc in activeStudentList)
+                        Column(
+                          children: [
+                            StudentListTile(
+                              title: studentDoc['studentName'] ?? '',
+                              subtitle:
+                                  'Batch: ${studentDoc['studentBatch']} | Fee: ₹${studentDoc['chargePerMonth']}' ??
+                                      '',
+                              onTap: () {
+                                // Handle onTap action for each student
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => InsideStudentScreen(
+                                        studentId: studentDoc['studentId']),
                                   ),
-                                ),
-                              );
-                            },
-                            onEditTap: () {
-                              // Handle "Edit" button tap
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => InsideStudentScreen(
-                                      studentId: studentDoc['studentId']),
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                  ],
-                );
-              },
+                                );
+                              },
+                              onPaymentsTap: () {
+                                // Handle "Payments" button tap
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => StudentBillsScreen(
+                                      studentId: studentDoc['studentId'],
+                                    ),
+                                  ),
+                                );
+                              },
+                              onEditTap: () {
+                                // Handle "Edit" button tap
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => InsideStudentScreen(
+                                        studentId: studentDoc['studentId']),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                    ],
+                  );
+                },
+              ),
             ),
           ),
-          Center(
-            child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection('users')
-                  .doc(user.uid)
-                  .collection('students')
-                  .where('isLeft', isEqualTo: true)
-                  .orderBy('joinedDate', descending: true)
-                  .limit(15)
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return CircularProgressIndicator();
-                }
-                if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                }
-                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return Text('No left students available.');
-                }
-                final leftStudentList = snapshot.data!.docs;
-                return Column(
-                  children: [
-                    for (var studentDoc in leftStudentList)
-                      Column(
-                        children: [
-                          StudentListTile(
-                            title: studentDoc['studentName'] ?? '',
-                            subtitle:
-                                'Batch: ${studentDoc['studentBatch']} | Fee: ₹${studentDoc['chargePerMonth']}' ??
-                                    '',
-                            onTap: () {
-                              // Handle onTap action for each student
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => InsideStudentScreen(
-                                      studentId: studentDoc['studentId']),
-                                ),
-                              );
-                            },
-                            onPaymentsTap: () {
-                              // Handle "Payments" button tap
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => StudentBillsScreen(
-                                    studentId: studentDoc['studentId'],
+          SingleChildScrollView(
+            padding: EdgeInsets.only(bottom: 150),
+            child: Center(
+              child: StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(user.uid)
+                    .collection('students')
+                    .where('isLeft', isEqualTo: true)
+                    .orderBy('joinedDate', descending: true)
+                    .limit(15)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  }
+                  if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  }
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return const Text('No left students available.');
+                  }
+                  final leftStudentList = snapshot.data!.docs;
+                  return Column(
+                    children: [
+                      for (var studentDoc in leftStudentList)
+                        Column(
+                          children: [
+                            StudentListTile(
+                              title: studentDoc['studentName'] ?? '',
+                              subtitle:
+                                  'Batch: ${studentDoc['studentBatch']} | Fee: ₹${studentDoc['chargePerMonth']}' ??
+                                      '',
+                              onTap: () {
+                                // Handle onTap action for each student
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => InsideStudentScreen(
+                                        studentId: studentDoc['studentId']),
                                   ),
-                                ),
-                              );
-                            },
-                            onEditTap: () {
-                              // Handle "Edit" button tap
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => InsideStudentScreen(
-                                      studentId: studentDoc['studentId']),
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                  ],
-                );
-              },
+                                );
+                              },
+                              onPaymentsTap: () {
+                                // Handle "Payments" button tap
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => StudentBillsScreen(
+                                      studentId: studentDoc['studentId'],
+                                    ),
+                                  ),
+                                );
+                              },
+                              onEditTap: () {
+                                // Handle "Edit" button tap
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => InsideStudentScreen(
+                                        studentId: studentDoc['studentId']),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                    ],
+                  );
+                },
+              ),
             ),
           ),
         ],

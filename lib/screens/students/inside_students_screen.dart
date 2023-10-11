@@ -18,6 +18,7 @@ class _InsideStudentScreenState extends State<InsideStudentScreen> {
   String studentName = "";
   String studentBatch = "";
   String joinedDate = "";
+  String nextBillDate = "";
   bool isActive = false;
   int chargePerMonth = 0;
 
@@ -36,6 +37,7 @@ class _InsideStudentScreenState extends State<InsideStudentScreen> {
           studentName = doc['studentName'];
           studentBatch = doc['studentBatch'];
           joinedDate = doc['joinedDate'];
+          nextBillDate = doc['nextBillDate'];
           isActive = doc['isActive'];
           chargePerMonth = doc['chargePerMonth'];
         });
@@ -126,6 +128,25 @@ class _InsideStudentScreenState extends State<InsideStudentScreen> {
                     ),
                     Text(
                       joinedDate,
+                      style: const TextStyle(
+                        fontSize: 18.0,
+                        color: Colors.blue,
+                      ),
+                    ),
+                    const Divider(
+                      color: Colors.grey,
+                      thickness: 1.0,
+                      height: 24.0,
+                    ),
+                    const Text(
+                      'Next Bill Date',
+                      style: TextStyle(
+                        fontSize: 24.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      nextBillDate,
                       style: const TextStyle(
                         fontSize: 18.0,
                         color: Colors.blue,

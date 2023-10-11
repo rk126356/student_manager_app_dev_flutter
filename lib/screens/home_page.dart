@@ -39,6 +39,23 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     return Scaffold(
+      floatingActionButton: ElevatedButton(
+        onPressed: () {
+          Navigator.pushNamed(context, '/new-student');
+        },
+        style: ElevatedButton.styleFrom(
+          shape: const CircleBorder(),
+          primary: Colors.blue,
+          padding: const EdgeInsets.all(20),
+          elevation: 8,
+          shadowColor: Colors.blueAccent,
+        ),
+        child: const Icon(
+          Icons.add,
+          color: Colors.white,
+          size: 30,
+        ),
+      ),
       appBar: AppBar(
         actions: [
           IconButton(

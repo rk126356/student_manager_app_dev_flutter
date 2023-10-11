@@ -6,11 +6,13 @@ class EditPaymentsScreen extends StatefulWidget {
   final String studentId;
   final String billDate;
   final String userId;
+  final String studentName;
 
   EditPaymentsScreen({
     required this.studentId,
     required this.billDate,
     required this.userId,
+    required this.studentName,
   });
 
   @override
@@ -18,8 +20,8 @@ class EditPaymentsScreen extends StatefulWidget {
 }
 
 class _EditPaymentsScreenState extends State<EditPaymentsScreen> {
-  String? paidDate; // To store the paid date
-  bool isPaid = false; // To store the paid date
+  String? paidDate;
+  bool isPaid = false;
 
   @override
   void initState() {
@@ -64,7 +66,6 @@ class _EditPaymentsScreenState extends State<EditPaymentsScreen> {
           .collection('payments');
 
       if (newStatus) {
-        // If marking as paid, add 'paidDate'
         final Timestamp timestamp = Timestamp.now();
 
         await paymentCollection
@@ -82,7 +83,6 @@ class _EditPaymentsScreenState extends State<EditPaymentsScreen> {
           paidDate = timestamp.toDate().toString();
         });
       } else {
-        // If marking as unpaid, remove 'paidDate'
         await paymentCollection
             .where('studentId', isEqualTo: widget.studentId)
             .where('billDate', isEqualTo: widget.billDate)
@@ -118,7 +118,6 @@ class _EditPaymentsScreenState extends State<EditPaymentsScreen> {
         });
       });
 
-      // After successful deletion, you can navigate back to the previous screen
       Navigator.of(context).pop();
     } catch (error) {
       print('Error deleting payment: $error');
@@ -143,14 +142,14 @@ class _EditPaymentsScreenState extends State<EditPaymentsScreen> {
             TextButton(
               child: Text('Cancel'),
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop();
               },
             ),
             TextButton(
               child: Text('Delete'),
               onPressed: () {
                 deletePayment();
-                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop();
               },
             ),
           ],
@@ -163,66 +162,85 @@ class _EditPaymentsScreenState extends State<EditPaymentsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Payment Status'),
+        title: Text('Edit Payment Status'),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            Text(
+              "Student Name: ${widget.studentName}",
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 20),
             Container(
-              width: 150, // Adjust the width as needed
-              height: 150, // Adjust the height as needed
+              width: 150,
+              height: 150,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: isPaid! ? Colors.green : Colors.red,
+                color: isPaid ? Colors.green : Colors.red,
                 boxShadow: [
                   BoxShadow(
                     color: Colors.grey.withOpacity(0.5),
                     spreadRadius: 3,
                     blurRadius: 5,
-                    offset: const Offset(0, 3),
+                    offset: Offset(0, 3),
                   ),
                 ],
               ),
               child: Center(
                 child: Icon(
-                  isPaid! ? Icons.check : Icons.cancel,
+                  isPaid ? Icons.check : Icons.cancel,
                   color: Colors.white,
-                  size: 64, // Adjust the icon size as needed
+                  size: 64,
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             Text(
-              isPaid! ? 'Payment Received' : 'Payment Not Received',
+              isPaid ? 'Payment Received' : 'Payment Not Received',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: isPaid! ? Colors.green : Colors.red,
+                color: isPaid ? Colors.green : Colors.red,
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             Switch(
-              value: isPaid!,
+              value: isPaid,
               onChanged: (newValue) {
                 updatePaymentStatus(newValue);
               },
-              activeColor: Colors.green, // Color when the switch is on
-              inactiveTrackColor: Colors.red
-                  .withOpacity(0.5), // Track color when the switch is off
+              activeColor: Colors.green,
+              inactiveTrackColor: Colors.red.withOpacity(0.5),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             Text(
-              paidDate != null
-                  ? "Paid Date: ${DateFormat('dd MMMM yyyy').format(DateTime.parse(paidDate.toString()))}"
-                  : "Dill Date: ${DateFormat('dd MMMM yyyy').format(DateTime.parse(widget.billDate.toString()))}",
+              "Bill Date: ${DateFormat('dd MMMM yyyy').format(DateTime.parse(widget.billDate))}",
+              style: TextStyle(
+                fontSize: 16,
+              ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 10),
+            if (paidDate != null)
+              Text(
+                "Paid Date: ${DateFormat('dd MMMM yyyy').format(DateTime.parse(paidDate!))}",
+                style: TextStyle(
+                  fontSize: 16,
+                ),
+              ),
+            SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Navigate back when pressed
+                Navigator.of(context).pop();
               },
-              child: const Text(
+              style: ElevatedButton.styleFrom(
+                primary: Colors.blue,
+              ),
+              child: Text(
                 'Go Back',
                 style: TextStyle(
                   fontSize: 16,
@@ -235,9 +253,9 @@ class _EditPaymentsScreenState extends State<EditPaymentsScreen> {
                 showDeleteConfirmationDialog();
               },
               style: ElevatedButton.styleFrom(
-                primary: Colors.red, // Set the button background color to red
+                primary: Colors.red,
               ),
-              child: const Text(
+              child: Text(
                 'Delete This Payment',
                 style: TextStyle(
                   fontSize: 16,

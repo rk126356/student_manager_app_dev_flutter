@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:student_manager_app_dev_flutter/components/NavBar.dart';
 import 'package:student_manager_app_dev_flutter/screens/payments/all_payments_tab.dart';
 import 'package:student_manager_app_dev_flutter/screens/payments/paid_payments_tab.dart';
+import 'package:student_manager_app_dev_flutter/screens/payments/search_payments_screen.dart';
 import 'package:student_manager_app_dev_flutter/screens/payments/unpaid_payments_tab.dart';
 
 class PaymentsScreen extends StatefulWidget {
@@ -32,6 +33,14 @@ class _PaymentsScreenState extends State<PaymentsScreen>
     return Scaffold(
       drawer: const NavBar(),
       appBar: AppBar(
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.pushNamed(context, '/search-payments');
+            },
+            icon: Icon(Icons.search),
+          ),
+        ],
         title: const Text('Payments'),
         bottom: TabBar(
           controller: _tabController,

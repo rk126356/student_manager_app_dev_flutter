@@ -5,94 +5,210 @@ import 'package:provider/provider.dart';
 import 'package:student_manager_app_dev_flutter/providers/user_provider.dart';
 import 'package:student_manager_app_dev_flutter/screens/payments/edit_payments_screen.dart';
 
-class AllPaymentsTab extends StatelessWidget {
+class AllPaymentsTab extends StatefulWidget {
   const AllPaymentsTab({Key? key});
+
+  @override
+  _AllPaymentsTabState createState() => _AllPaymentsTabState();
+}
+
+class _AllPaymentsTabState extends State<AllPaymentsTab> {
+  DateTime? selectedStartDate = DateTime(2023);
+  DateTime selectedEndDate = DateTime.now();
 
   @override
   Widget build(BuildContext context) {
     var user = Provider.of<UserProvider>(context, listen: false).userData;
+
     CollectionReference paymentsCollection = FirebaseFirestore.instance
         .collection('users')
         .doc(user.uid)
         .collection('payments');
 
-    return StreamBuilder<QuerySnapshot>(
-      stream: paymentsCollection
-          .orderBy('billDate',
-              descending: true) // Sort payments by date in descending order
-          .snapshots(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
+    final formattedSelectedStartDate =
+        DateFormat('yyyy-MM-dd').parse(selectedStartDate.toString());
 
-        if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        }
+    final formattedSelectedEndDate =
+        DateFormat('yyyy-MM-dd').parse(selectedEndDate.toString());
 
-        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return const Center(child: Text('No payments available.'));
-        }
-
-        return ListView.builder(
-          itemCount: snapshot.data!.docs.length,
-          itemBuilder: (context, index) {
-            final paymentData =
-                snapshot.data!.docs[index].data() as Map<String, dynamic>;
-            final studentName = paymentData['studentName'];
-            final studentBatch = paymentData['studentBatch'];
-            final chargePerMonth = paymentData['chargePerMonth'];
-            final paymentDateString = paymentData['billDate'];
-            final isPaid = paymentData[
-                'isPaid']; // Assuming you have a field indicating payment status
-
-            final formattedDate = DateFormat('MMM dd, yyyy')
-                .format(DateTime.parse(paymentDateString));
-
-            // Set the background color, icon, and text style based on payment status
-            final cardColor = isPaid ? Colors.green : Colors.red;
-            final icon = isPaid ? Icons.check_circle : Icons.cancel;
-            const titleTextStyle = TextStyle(
-              fontSize: 16.0,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            );
-            const subtitleTextStyle = TextStyle(
-              fontSize: 14.0,
-              color: Colors.white,
-            );
-
-            return Card(
-              color: cardColor,
-              elevation: 4,
-              margin: const EdgeInsets.all(8),
-              child: ListTile(
-                leading: Icon(icon, color: Colors.white),
-                title: Text(
-                  '$studentName - Batch: $studentBatch',
-                  style: titleTextStyle,
+    return Column(
+      children: [
+        // Date range filter
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: InkWell(
+            onTap: () {
+              _selectDateRange(context);
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Selected start date
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    DateFormat('MMM dd, yyyy')
+                        .format(formattedSelectedStartDate),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
-                subtitle: Text(
-                  'Fee: $chargePerMonth - Due Date: $formattedDate',
-                  style: subtitleTextStyle,
+
+                // Arrow icon to separate the dates
+                Icon(
+                  Icons.arrow_right_alt,
+                  color: Colors.grey,
+                  size: 36,
                 ),
-                trailing: const Icon(Icons.arrow_right, color: Colors.white),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => EditPaymentsScreen(
-                          studentId: paymentData['studentId'],
-                          billDate: paymentData['billDate'],
-                          userId: user.uid!),
+
+                // Selected end date
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    DateFormat('MMM dd, yyyy').format(formattedSelectedEndDate),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: 5,
+                ),
+                // Date Range button
+                ElevatedButton(
+                  onPressed: () {
+                    _selectDateRange(context);
+                  },
+                  child: Text(
+                    'Change Range',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        // Display payments
+        Expanded(
+          child: StreamBuilder<QuerySnapshot>(
+            stream: paymentsCollection.orderBy('billDate').snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              }
+              if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                return const Center(child: Text('No payments available.'));
+              }
+              return ListView.builder(
+                itemCount: snapshot.data!.docs.length,
+                itemBuilder: (context, index) {
+                  final paymentData =
+                      snapshot.data!.docs[index].data() as Map<String, dynamic>;
+                  final studentName = paymentData['studentName'];
+                  final studentBatch = paymentData['studentBatch'];
+                  final chargePerMonth = paymentData['chargePerMonth'];
+                  final isPaid = paymentData['isPaid'];
+                  final billDate = paymentData['billDate'] as String;
+
+                  final formattedDate =
+                      DateFormat('yyyy-MM-dd').parse(billDate);
+
+                  if (!_isWithinSelectedDateRange(formattedDate)) {
+                    return Container();
+                  }
+
+                  final cardColor = isPaid ? Colors.green : Colors.red;
+                  final icon = isPaid ? Icons.check_circle : Icons.cancel;
+                  const titleTextStyle = TextStyle(
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  );
+                  const subtitleTextStyle = TextStyle(
+                    fontSize: 14.0,
+                    color: Colors.white,
+                  );
+
+                  return Card(
+                    color: cardColor,
+                    elevation: 4,
+                    margin: const EdgeInsets.all(8),
+                    child: ListTile(
+                      leading: Icon(icon, color: Colors.white),
+                      title: Text(
+                        '$studentName - Batch: $studentBatch',
+                        style: titleTextStyle,
+                      ),
+                      subtitle: Text(
+                        'Fee: ₹$chargePerMonth | Bill Date: ${DateFormat('MMM dd, yyyy').format(formattedDate)}',
+                        style: subtitleTextStyle,
+                      ),
+                      trailing:
+                          const Icon(Icons.arrow_right, color: Colors.white),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => EditPaymentsScreen(
+                                studentId: paymentData['studentId'],
+                                studentName: paymentData['studentName'],
+                                billDate: paymentData['billDate'],
+                                userId: user.uid!),
+                          ),
+                        );
+                      },
                     ),
                   );
                 },
-              ),
-            );
-          },
-        );
-      },
+              );
+            },
+          ),
+        ),
+      ],
     );
+  }
+
+  void _selectDateRange(BuildContext context) async {
+    final DateTimeRange? pickedDates = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2023),
+      lastDate: DateTime(2101),
+      initialDateRange: DateTimeRange(
+        start: selectedStartDate ?? DateTime(2023),
+        end: selectedEndDate ?? DateTime(2101),
+      ),
+    );
+
+    if (pickedDates != null) {
+      setState(() {
+        selectedStartDate = pickedDates.start;
+        selectedEndDate = pickedDates.end;
+      });
+    }
+  }
+
+  bool _isWithinSelectedDateRange(DateTime date) {
+    if (selectedStartDate != null && date.isBefore(selectedStartDate!)) {
+      return false;
+    }
+    if (selectedEndDate != null && date.isAfter(selectedEndDate!)) {
+      return false;
+    }
+    return true;
   }
 }
