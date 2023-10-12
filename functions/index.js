@@ -53,6 +53,7 @@ exports.generateBills = functions.https.onCall(async (data, context) => {
           const billData = {
             studentId: studentDoc.id,
             studentName: studentData.studentName,
+            studentImageUrl: studentData.studentImageURL,
             studentBatch: studentData.studentBatch,
             chargePerMonth: studentData.chargePerMonth,
             // ... other bill data ...

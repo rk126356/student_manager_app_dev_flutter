@@ -59,15 +59,15 @@ class _PaymentsScreenState extends State<PaymentsScreen>
       ),
       body: TabBarView(
         controller: _tabController,
-        children: <Widget>[
+        children: const <Widget>[
           // Display all payments here
-          const AllPaymentsTab(),
+          AllPaymentsTab(),
 
           // Display paid payments here
-          const PaidPaymentsTab(),
+          PaidPaymentsTab(),
 
           // Display unpaid payments here
-          const UnpaidPaymentsTab(),
+          UnpaidPaymentsTab(),
         ],
       ),
     );

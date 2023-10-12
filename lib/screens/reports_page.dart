@@ -31,14 +31,24 @@ class _ReportsScreenState extends State<ReportsScreen> {
     }
 
     if (endDate != null) {
-      query = query.where('billDate', isLessThanOrEqualTo: endDate.toString());
+      // Convert endDate to a DateTime object
+      DateTime endDateDateTime = DateTime.parse(endDate.toString());
+
+      // Add +1 day
+      endDateDateTime = endDateDateTime.add(Duration(days: 1));
+
+      // Convert it back to a string if needed
+      String endDatePlusOneDay = endDateDateTime.toLocal().toString();
+
+      // Use the updated date in your query
+      query = query.where('billDate', isLessThanOrEqualTo: endDatePlusOneDay);
     }
 
     return StreamBuilder<QuerySnapshot>(
       stream: query.snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
+          return const CircularProgressIndicator();
         }
 
         if (snapshot.hasError) {
@@ -72,7 +82,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
         final formattedSelectedEndDate =
             DateFormat('yyyy-MM-dd').parse(endDate.toString());
 
-        bool _isWithinSelectedDateRange(DateTime date) {
+        bool isWithinSelectedDateRange(DateTime date) {
           if (startDate != null && date.isBefore(startDate!)) {
             return false;
           }
@@ -88,7 +98,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
           ),
           body: Column(
             children: [
-              SizedBox(
+              const SizedBox(
                 height: 15,
               ),
               Row(
@@ -104,7 +114,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     child: Text(
                       DateFormat('MMM dd, yyyy')
                           .format(formattedSelectedStartDate),
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
@@ -112,7 +122,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   ),
 
                   // Arrow icon to separate the dates
-                  Icon(
+                  const Icon(
                     Icons.arrow_right_alt,
                     color: Colors.grey,
                     size: 36,
@@ -128,13 +138,13 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     child: Text(
                       DateFormat('MMM dd, yyyy')
                           .format(formattedSelectedEndDate),
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     width: 5,
                   ),
                 ],
@@ -159,7 +169,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     }
                   });
                 },
-                child: Text('Select Date Range'),
+                child: const Text('Select Date Range'),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -199,7 +209,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
               // Display payments
               Expanded(
                 child: StreamBuilder<QuerySnapshot>(
-                  stream: paymentsCollection.orderBy('billDate').snapshots(),
+                  stream: paymentsCollection
+                      .orderBy('billDate', descending: true)
+                      .snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());
@@ -225,7 +237,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                         final formattedDate =
                             DateFormat('yyyy-MM-dd').parse(billDate);
 
-                        if (!_isWithinSelectedDateRange(formattedDate)) {
+                        if (!isWithinSelectedDateRange(formattedDate)) {
                           return Container();
                         }
 

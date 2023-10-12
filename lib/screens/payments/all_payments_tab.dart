@@ -53,7 +53,7 @@ class _AllPaymentsTabState extends State<AllPaymentsTab> {
                   child: Text(
                     DateFormat('MMM dd, yyyy')
                         .format(formattedSelectedStartDate),
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
@@ -61,7 +61,7 @@ class _AllPaymentsTabState extends State<AllPaymentsTab> {
                 ),
 
                 // Arrow icon to separate the dates
-                Icon(
+                const Icon(
                   Icons.arrow_right_alt,
                   color: Colors.grey,
                   size: 36,
@@ -76,13 +76,13 @@ class _AllPaymentsTabState extends State<AllPaymentsTab> {
                   ),
                   child: Text(
                     DateFormat('MMM dd, yyyy').format(formattedSelectedEndDate),
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   width: 5,
                 ),
                 // Date Range button
@@ -90,7 +90,7 @@ class _AllPaymentsTabState extends State<AllPaymentsTab> {
                   onPressed: () {
                     _selectDateRange(context);
                   },
-                  child: Text(
+                  child: const Text(
                     'Change Range',
                     style: TextStyle(color: Colors.white),
                   ),
@@ -103,7 +103,9 @@ class _AllPaymentsTabState extends State<AllPaymentsTab> {
         // Display payments
         Expanded(
           child: StreamBuilder<QuerySnapshot>(
-            stream: paymentsCollection.orderBy('billDate').snapshots(),
+            stream: paymentsCollection
+                .orderBy('billDate', descending: true)
+                .snapshots(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
@@ -149,7 +151,18 @@ class _AllPaymentsTabState extends State<AllPaymentsTab> {
                     elevation: 4,
                     margin: const EdgeInsets.all(8),
                     child: ListTile(
-                      leading: Icon(icon, color: Colors.white),
+                      leading: Container(
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          image: DecorationImage(
+                            fit: BoxFit.cover,
+                            image: NetworkImage(paymentData['studentImageUrl']),
+                          ),
+                        ),
+                      ),
                       title: Text(
                         '$studentName - Batch: $studentBatch',
                         style: titleTextStyle,

@@ -5,116 +5,224 @@ import 'package:provider/provider.dart';
 import 'package:student_manager_app_dev_flutter/providers/user_provider.dart';
 import 'package:student_manager_app_dev_flutter/screens/payments/edit_payments_screen.dart';
 
-class UnpaidPaymentsTab extends StatelessWidget {
+class UnpaidPaymentsTab extends StatefulWidget {
   const UnpaidPaymentsTab({Key? key});
+
+  @override
+  _UnpaidPaymentsTabState createState() => _UnpaidPaymentsTabState();
+}
+
+class _UnpaidPaymentsTabState extends State<UnpaidPaymentsTab> {
+  DateTime? selectedStartDate = DateTime(2023);
+  DateTime selectedEndDate = DateTime.now();
 
   @override
   Widget build(BuildContext context) {
     var user = Provider.of<UserProvider>(context, listen: false).userData;
+
     CollectionReference paymentsCollection = FirebaseFirestore.instance
         .collection('users')
         .doc(user.uid)
         .collection('payments');
 
-    return StreamBuilder<QuerySnapshot>(
-      stream: paymentsCollection
-          .where('isPaid', isEqualTo: false) // Filter only paid payments
-          .orderBy('billDate',
-              descending: true) // Sort payments by date in descending order
-          .snapshots(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
+    final formattedSelectedStartDate =
+        DateFormat('yyyy-MM-dd').parse(selectedStartDate.toString());
 
-        if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        }
+    final formattedSelectedEndDate =
+        DateFormat('yyyy-MM-dd').parse(selectedEndDate.toString());
 
-        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return const Center(child: Text('No paid payments available.'));
-        }
-
-        // Extract and group payments by months
-        final paymentsByMonth = groupPaymentsByMonth(snapshot.data!.docs);
-
-        return ListView.builder(
-          itemCount: paymentsByMonth.length,
-          itemBuilder: (context, index) {
-            final monthYear = paymentsByMonth.keys.elementAt(index);
-            final payments = paymentsByMonth[monthYear];
-
-            return Column(
-              children: payments!.map((paymentData) {
-                final studentName = paymentData['studentName'];
-                final studentBatch = paymentData['studentBatch'];
-                final chargePerMonth = paymentData['chargePerMonth'];
-                final paymentDateString = paymentData['billDate'];
-                final formattedDate = DateFormat('MMM dd, yyyy')
-                    .format(DateTime.parse(paymentDateString));
-
-                return Card(
-                  color: Colors.red, // You can customize the color
-                  elevation: 4,
-                  margin: const EdgeInsets.all(8),
-                  child: ListTile(
-                    leading: const Icon(Icons.cancel, color: Colors.white),
-                    title: Text(
-                      '$studentName - Batch: $studentBatch',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: Colors.white,
-                      ),
-                    ),
-                    subtitle: Text(
-                      'Fee: ₹$chargePerMonth | Bill Date: $formattedDate',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.white,
-                      ),
-                    ),
-                    trailing:
-                        const Icon(Icons.arrow_right, color: Colors.white),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => EditPaymentsScreen(
-                              studentId: paymentData['studentId'],
-                              studentName: paymentData['studentName'],
-                              billDate: paymentData['billDate'],
-                              userId: user.uid!),
-                        ),
-                      );
-                    },
+    return Column(
+      children: [
+        // Date range filter
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: InkWell(
+            onTap: () {
+              _selectDateRange(context);
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Selected start date
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                );
-              }).toList(),
-            );
-          },
-        );
-      },
+                  child: Text(
+                    DateFormat('MMM dd, yyyy')
+                        .format(formattedSelectedStartDate),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+
+                // Arrow icon to separate the dates
+                const Icon(
+                  Icons.arrow_right_alt,
+                  color: Colors.grey,
+                  size: 36,
+                ),
+
+                // Selected end date
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    DateFormat('MMM dd, yyyy').format(formattedSelectedEndDate),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  width: 5,
+                ),
+                // Date Range button
+                ElevatedButton(
+                  onPressed: () {
+                    _selectDateRange(context);
+                  },
+                  child: const Text(
+                    'Change Range',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        // Display payments
+        Expanded(
+          child: StreamBuilder<QuerySnapshot>(
+            stream: paymentsCollection
+                .where('isPaid', isEqualTo: false)
+                .orderBy('billDate', descending: true)
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              }
+              if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                return const Center(child: Text('No payments available.'));
+              }
+              return ListView.builder(
+                itemCount: snapshot.data!.docs.length,
+                itemBuilder: (context, index) {
+                  final paymentData =
+                      snapshot.data!.docs[index].data() as Map<String, dynamic>;
+                  final studentName = paymentData['studentName'];
+                  final studentBatch = paymentData['studentBatch'];
+                  final chargePerMonth = paymentData['chargePerMonth'];
+                  final isPaid = paymentData['isPaid'];
+                  final billDate = paymentData['billDate'] as String;
+
+                  final formattedDate =
+                      DateFormat('yyyy-MM-dd').parse(billDate);
+
+                  if (!_isWithinSelectedDateRange(formattedDate)) {
+                    return Container();
+                  }
+
+                  final cardColor = isPaid ? Colors.green : Colors.red;
+                  final icon = isPaid ? Icons.check_circle : Icons.cancel;
+                  const titleTextStyle = TextStyle(
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  );
+                  const subtitleTextStyle = TextStyle(
+                    fontSize: 14.0,
+                    color: Colors.white,
+                  );
+
+                  return Card(
+                    color: cardColor,
+                    elevation: 4,
+                    margin: const EdgeInsets.all(8),
+                    child: ListTile(
+                      leading: Container(
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          image: DecorationImage(
+                            fit: BoxFit.cover,
+                            image: NetworkImage(paymentData['studentImageUrl']),
+                          ),
+                        ),
+                      ),
+                      title: Text(
+                        '$studentName - Batch: $studentBatch',
+                        style: titleTextStyle,
+                      ),
+                      subtitle: Text(
+                        'Fee: ₹$chargePerMonth | Bill Date: ${DateFormat('MMM dd, yyyy').format(formattedDate)}',
+                        style: subtitleTextStyle,
+                      ),
+                      trailing:
+                          const Icon(Icons.arrow_right, color: Colors.white),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => EditPaymentsScreen(
+                                studentId: paymentData['studentId'],
+                                studentName: paymentData['studentName'],
+                                billDate: paymentData['billDate'],
+                                userId: user.uid!),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 
-  Map<String, List<DocumentSnapshot>> groupPaymentsByMonth(
-      List<DocumentSnapshot> payments) {
-    Map<String, List<DocumentSnapshot>> groupedPayments = {};
+  void _selectDateRange(BuildContext context) async {
+    final DateTimeRange? pickedDates = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2023),
+      lastDate: DateTime(2101),
+      initialDateRange: DateTimeRange(
+        start: selectedStartDate ?? DateTime(2023),
+        end: selectedEndDate ?? DateTime(2101),
+      ),
+    );
 
-    for (DocumentSnapshot payment in payments) {
-      final paymentData = payment.data() as Map<String, dynamic>;
-      final paymentDate = paymentData['billDate'];
-      final monthYear =
-          DateFormat('MMM yyyy').format(DateTime.parse(paymentDate));
-
-      if (!groupedPayments.containsKey(monthYear)) {
-        groupedPayments[monthYear] = [];
-      }
-
-      groupedPayments[monthYear]!.add(payment);
+    if (pickedDates != null) {
+      setState(() {
+        selectedStartDate = pickedDates.start;
+        selectedEndDate = pickedDates.end;
+      });
     }
+  }
 
-    return groupedPayments;
+  bool _isWithinSelectedDateRange(DateTime date) {
+    if (selectedStartDate != null && date.isBefore(selectedStartDate!)) {
+      return false;
+    }
+    if (selectedEndDate != null && date.isAfter(selectedEndDate!)) {
+      return false;
+    }
+    return true;
   }
 }

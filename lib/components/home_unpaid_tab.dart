@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:student_manager_app_dev_flutter/providers/user_provider.dart';
 import 'package:student_manager_app_dev_flutter/screens/payments/edit_payments_screen.dart';
-import 'package:student_manager_app_dev_flutter/widgets/my_list_tile_widget.dart';
 
 class HomeUnpaidTab extends StatelessWidget {
   const HomeUnpaidTab({
@@ -56,7 +55,18 @@ class HomeUnpaidTab extends StatelessWidget {
             elevation: 4,
             margin: const EdgeInsets.all(8),
             child: ListTile(
-              leading: const Icon(Icons.cancel, color: Colors.white),
+              leading: Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  image: DecorationImage(
+                    fit: BoxFit.cover,
+                    image: NetworkImage(paymentData['studentImageUrl']),
+                  ),
+                ),
+              ),
               title: Text(
                 '$studentName - Batch: $studentBatch',
                 style: const TextStyle(

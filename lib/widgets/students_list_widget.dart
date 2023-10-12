@@ -29,7 +29,6 @@ class StudentListTile extends StatelessWidget {
         child: ListTile(
           contentPadding: EdgeInsets.all(15),
           leading: Container(
-            // New leading container for the image
             width: 60,
             height: 60,
             decoration: BoxDecoration(

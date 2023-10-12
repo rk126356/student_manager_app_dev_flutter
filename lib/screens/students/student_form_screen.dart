@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -9,6 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:student_manager_app_dev_flutter/providers/user_provider.dart';
 import 'package:uuid/uuid.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
 
 class CreateStudentScreen extends StatelessWidget {
   @override
@@ -87,6 +89,20 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
       await storageReference.putFile(studentImage);
     }
 
+    String url = await storageReference.getDownloadURL();
+    Uri originalUri = Uri.parse(url);
+
+// Create a new URI with the scheme, host, and the modified last segment
+    Uri modifiedUri = Uri(
+      scheme: originalUri.scheme,
+      host: originalUri.host,
+      path: originalUri.path.replaceRange(originalUri.path.lastIndexOf('/') + 1,
+          originalUri.path.length, "student_images%2F${studentId}_200x200.png"),
+    );
+
+// Get the modified URL as a string
+    String modifiedUrl = modifiedUri.toString();
+
     // Add student data to Firestore
     await studentsCollection.doc(studentId).set({
       'studentId': studentId,
@@ -100,7 +116,7 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
       'chargePerMonth': chargePerMonth,
       'studentPhoneNumber': studentPhoneNumber,
       'studentImageURL': studentImage != null
-          ? await storageReference.getDownloadURL()
+          ? "$modifiedUrl?alt=media"
           : "https://firebasestorage.googleapis.com/v0/b/student-manager-ac339.appspot.com/o/pngtree-vector-male-student-icon-png-image_558702-removebg-preview.png?alt=media&token=6205bbaf-fa94-4794-aa97-0e41581f5ed2&_gl=1*10lebqg*_ga*MTUxOTk0NjEwMC4xNjk2NzU3OTg2*_ga_CW55HF8NVT*MTY5NzAzODg0MS4yMy4xLjE2OTcwNDY0NjkuNjAuMC4w", // Get image URL
     });
 
@@ -250,7 +266,7 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
             ),
             keyboardType: TextInputType.phone,
             validator: (value) {
-              if (value == null || value.isEmpty) {
+              if (value == null || value.isEmpty || value.length <= 5) {
                 return 'Please enter a phone number';
               }
               return null;
@@ -265,7 +281,7 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
             onPressed: () async {
               if (_formKey.currentState!.validate()) {
                 _formKey.currentState!.save();
-                final studentId = const Uuid().v4().substring(0, 8);
+
                 addStudentToFirestore(
                   user.uid!,
                   studentName!,

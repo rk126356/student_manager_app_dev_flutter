@@ -120,8 +120,22 @@ class _EditStudentFormState extends State<EditStudentForm> {
     await storageReference.putFile(image);
 
     // Get the download URL of the uploaded image
-    String imageUrl = await storageReference.getDownloadURL();
-    return imageUrl;
+    String url = await storageReference.getDownloadURL();
+
+    Uri originalUri = Uri.parse(url);
+
+// Create a new URI with the scheme, host, and the modified last segment
+    Uri modifiedUri = Uri(
+      scheme: originalUri.scheme,
+      host: originalUri.host,
+      path: originalUri.path.replaceRange(originalUri.path.lastIndexOf('/') + 1,
+          originalUri.path.length, "student_images%2F${studentId}_200x200.png"),
+    );
+
+// Get the modified URL as a string
+    String modifiedUrl = modifiedUri.toString();
+
+    return "$modifiedUrl?alt=media";
   }
 
   Future<void> deleteStudentFromFirestore(String studentId) async {
