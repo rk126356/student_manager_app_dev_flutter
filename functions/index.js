@@ -33,6 +33,11 @@ exports.generateBills = functions.https.onCall(async (data, context) => {
         continue;
       }
 
+      // Add a check for isLeft property here
+      if (studentData.isLeft === true) {
+              continue; // Skip generating bills for this student
+            }
+
       const feesCollection = studentsCollection.doc(studentDoc.id).collection('payments');
 
       for (let i = 0; i < monthsPassed; i++) {

@@ -113,10 +113,10 @@ class _StudentsScreenState extends State<StudentsScreen>
                         Column(
                           children: [
                             StudentListTile(
+                              imageUrl: studentDoc['studentImageURL'] ?? '',
                               title: studentDoc['studentName'] ?? '',
                               subtitle:
-                                  'Batch: ${studentDoc['studentBatch']} | Fee: ₹${studentDoc['chargePerMonth']}' ??
-                                      '',
+                                  '${studentDoc['studentBatch']} | Fee: ₹${studentDoc['chargePerMonth']}',
                               onTap: () {
                                 // Handle onTap action for each student
                                 Navigator.push(
@@ -133,6 +133,7 @@ class _StudentsScreenState extends State<StudentsScreen>
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => StudentBillsScreen(
+                                      studentName: studentDoc['studentName'],
                                       studentId: studentDoc['studentId'],
                                     ),
                                   ),
@@ -187,9 +188,9 @@ class _StudentsScreenState extends State<StudentsScreen>
                           children: [
                             StudentListTile(
                               title: studentDoc['studentName'] ?? '',
+                              imageUrl: studentDoc['studentImageURL'] ?? '',
                               subtitle:
-                                  'Batch: ${studentDoc['studentBatch']} | Fee: ₹${studentDoc['chargePerMonth']}' ??
-                                      '',
+                                  '${studentDoc['studentBatch']} | Fee: ₹${studentDoc['chargePerMonth']}',
                               onTap: () {
                                 // Handle onTap action for each student
                                 Navigator.push(
@@ -206,6 +207,7 @@ class _StudentsScreenState extends State<StudentsScreen>
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => StudentBillsScreen(
+                                      studentName: studentDoc['studentName'],
                                       studentId: studentDoc['studentId'],
                                     ),
                                   ),
@@ -260,9 +262,9 @@ class _StudentsScreenState extends State<StudentsScreen>
                           children: [
                             StudentListTile(
                               title: studentDoc['studentName'] ?? '',
+                              imageUrl: studentDoc['studentImageURL'] ?? '',
                               subtitle:
-                                  'Batch: ${studentDoc['studentBatch']} | Fee: ₹${studentDoc['chargePerMonth']}' ??
-                                      '',
+                                  '${studentDoc['studentBatch']} | Fee: ₹${studentDoc['chargePerMonth']}',
                               onTap: () {
                                 // Handle onTap action for each student
                                 Navigator.push(
@@ -279,6 +281,7 @@ class _StudentsScreenState extends State<StudentsScreen>
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => StudentBillsScreen(
+                                      studentName: studentDoc['studentName'],
                                       studentId: studentDoc['studentId'],
                                     ),
                                   ),

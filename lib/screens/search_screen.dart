@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'package:student_manager_app_dev_flutter/providers/user_provider.dart';
 import 'package:student_manager_app_dev_flutter/screens/students/edit_student_screen.dart';
+import 'package:student_manager_app_dev_flutter/screens/students/inside_students_screen.dart';
 import 'package:student_manager_app_dev_flutter/screens/students/student_bills_screen.dart';
 import 'package:student_manager_app_dev_flutter/widgets/students_list_widget.dart';
 
@@ -64,10 +65,10 @@ class _SearchScreenState extends State<SearchScreen> {
                 final studentDoc =
                     searchResults[index].data() as Map<String, dynamic>;
                 return StudentListTile(
+                  imageUrl: studentDoc['studentImageURL'] ?? '',
                   title: studentDoc['studentName'] ?? '',
                   subtitle:
-                      'Batch: ${studentDoc['studentBatch']} | Fee: ₹${studentDoc['chargePerMonth']}' ??
-                          '',
+                      '${studentDoc['studentBatch']} | Fee: ₹${studentDoc['chargePerMonth']}',
                   onTap: () {
                     // Handle onTap action for each student
                   },
@@ -78,6 +79,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       MaterialPageRoute(
                         builder: (context) => StudentBillsScreen(
                           studentId: studentDoc['studentId'],
+                          studentName: studentDoc['studentName'],
                         ),
                       ),
                     );
@@ -87,7 +89,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => EditStudentScreen(
+                        builder: (context) => InsideStudentScreen(
                             studentId: studentDoc['studentId']),
                       ),
                     );

@@ -43,6 +43,8 @@ dependencies:
   uuid: ^4.1.0
   intl: ^0.18.1
   cloud_functions: ^4.4.2
+  firebase_storage: ^11.2.8
+  image_picker: ^1.0.4
 
 dev_dependencies:
   flutter_test:

@@ -45,9 +45,9 @@ class HomeStudentsTab extends StatelessWidget {
                 children: [
                   StudentListTile(
                     title: studentDoc['studentName'] ?? '',
+                    imageUrl: studentDoc['studentImageURL'] ?? '',
                     subtitle:
-                        'Batch: ${studentDoc['studentBatch']} | Fee: ₹${studentDoc['chargePerMonth']}' ??
-                            '',
+                        '${studentDoc['studentBatch']} | Fee: ₹${studentDoc['chargePerMonth']}',
                     onTap: () {
                       // Handle onTap action for each student
                       Navigator.push(
@@ -65,6 +65,7 @@ class HomeStudentsTab extends StatelessWidget {
                         MaterialPageRoute(
                           builder: (context) => StudentBillsScreen(
                             studentId: studentDoc['studentId'],
+                            studentName: studentDoc['studentName'],
                           ),
                         ),
                       );

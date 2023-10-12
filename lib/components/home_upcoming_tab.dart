@@ -72,6 +72,7 @@ class HomeUpcomingTab extends StatelessWidget {
             final studentName = paymentData['studentName'];
             final batchName = paymentData['studentBatch'];
             final chargePerMonth = paymentData['chargePerMonth'];
+            final imageUrl = paymentData['studentImageURL'];
 
             // Format the nextBillDate to the desired format
             final formattedNextBillDate = DateFormat('MMM dd, yyyy').format(
@@ -83,6 +84,19 @@ class HomeUpcomingTab extends StatelessWidget {
               elevation: 4, // Adjust the elevation as needed
               margin: const EdgeInsets.all(8), // Adjust the margin as needed
               child: ListTile(
+                leading: Container(
+                  // New leading container for the image
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    image: DecorationImage(
+                      fit: BoxFit.cover,
+                      image: NetworkImage(
+                          imageUrl), // Load the image from imageUrl
+                    ),
+                  ),
+                ),
                 title: Text(
                   batchName != null
                       ? "$studentName - Batch: $batchName"

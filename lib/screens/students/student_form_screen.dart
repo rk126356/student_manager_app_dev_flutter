@@ -1,17 +1,20 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:student_manager_app_dev_flutter/providers/user_provider.dart';
 import 'package:uuid/uuid.dart';
+import 'package:image_picker/image_picker.dart';
 
 class CreateStudentScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // Close the keyboard when tapped outside of text fields
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
@@ -21,7 +24,7 @@ class CreateStudentScreen extends StatelessWidget {
         body: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: CreateStudentForm(), // Include the form on the screen
+            child: CreateStudentForm(),
           ),
         ),
       ),
@@ -42,11 +45,13 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
   String? joinedDate;
   bool? isActive = true;
   bool? isLeft = false;
+  File? selectedImageFile;
+  String? studentPhoneNumber;
+  String selectedCountryCode = '+91';
 
   @override
   void initState() {
     super.initState();
-    // Initialize joinedDate with the current date
     final currentDate = DateTime.now();
     joinedDate = "${currentDate.day}/${currentDate.month}/${currentDate.year}";
   }
@@ -59,28 +64,30 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
     bool isActive,
     bool isLeft,
     int chargePerMonth,
+    String studentPhoneNumber,
+    File? studentImage,
   ) async {
     final CollectionReference usersCollection =
         FirebaseFirestore.instance.collection('users');
-
-    // Create a document for the user with the provided UID
     DocumentReference userDocument = usersCollection.doc(uid);
-
-    // Add a subcollection named 'students'
     CollectionReference studentsCollection =
         userDocument.collection('students');
-
-    // Generate a unique 8-digit ID for the student
     final String studentId = const Uuid().v4().substring(0, 8);
-
-    // Parse the joinedDate string into a DateTime
     final DateTime parsedJoinedDate =
         DateFormat('dd/MM/yyyy').parse(joinedDate);
+    final DateTime nextBillDate =
+        parsedJoinedDate.add(const Duration(days: 30));
 
-    // Calculate the nextBillDate based on joinedDate and chargePerMonth
-    final DateTime nextBillDate = parsedJoinedDate.add(Duration(days: 30));
+    // Create a storage reference for the student's image
+    final storageReference =
+        FirebaseStorage.instance.ref().child('student_images/$studentId.jpg');
 
-    // Add a new document with student data and the generated ID
+    // Upload the image to Firebase Storage
+    if (studentImage != null) {
+      await storageReference.putFile(studentImage);
+    }
+
+    // Add student data to Firestore
     await studentsCollection.doc(studentId).set({
       'studentId': studentId,
       'studentName': studentName,
@@ -91,9 +98,66 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
       'isActive': isActive,
       'isLeft': isLeft,
       'chargePerMonth': chargePerMonth,
+      'studentPhoneNumber': studentPhoneNumber,
+      'studentImageURL': studentImage != null
+          ? await storageReference.getDownloadURL()
+          : "https://firebasestorage.googleapis.com/v0/b/student-manager-ac339.appspot.com/o/pngtree-vector-male-student-icon-png-image_558702-removebg-preview.png?alt=media&token=6205bbaf-fa94-4794-aa97-0e41581f5ed2&_gl=1*10lebqg*_ga*MTUxOTk0NjEwMC4xNjk2NzU3OTg2*_ga_CW55HF8NVT*MTY5NzAzODg0MS4yMy4xLjE2OTcwNDY0NjkuNjAuMC4w", // Get image URL
     });
 
     print('Student data added to Firestore with ID: $studentId');
+  }
+
+  Future<void> _pickImage() async {
+    final ImagePicker _picker = ImagePicker();
+    final XFile? pickedImage =
+        await _picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedImage != null) {
+      setState(() {
+        selectedImageFile = File(pickedImage.path);
+      });
+    }
+  }
+
+  Widget _buildImagePreview() {
+    print(selectedImageFile);
+    if (selectedImageFile != null) {
+      return InkWell(
+        onTap: () {
+          _pickImage(); // Call the image picker function
+          _buildImagePreview(); // Display the selected image preview
+        },
+        child: Container(
+          width: 150,
+          height: 150,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            image: DecorationImage(
+              fit: BoxFit.cover,
+              image: FileImage(selectedImageFile!),
+            ),
+          ),
+        ),
+      );
+    } else {
+      return InkWell(
+        onTap: () {
+          _pickImage(); // Call the image picker function
+          _buildImagePreview(); // Display the selected image preview
+        },
+        child: Container(
+          width: 150,
+          height: 150,
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            image: DecorationImage(
+              fit: BoxFit.cover,
+              image: AssetImage('assets/images/user.png'),
+            ),
+          ),
+        ),
+      );
+    }
   }
 
   @override
@@ -104,6 +168,14 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
       key: _formKey,
       child: Column(
         children: [
+          _buildImagePreview(),
+          ElevatedButton(
+            onPressed: () {
+              _pickImage(); // Call the image picker function
+              _buildImagePreview(); // Display the selected image preview
+            },
+            child: const Text('Select Image'),
+          ),
           TextFormField(
             decoration: const InputDecoration(
               labelText: 'Student Name',
@@ -140,7 +212,7 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
             decoration: const InputDecoration(
               labelText: 'Fee Per Month',
               border: OutlineInputBorder(),
-              prefixIcon: Icon(Icons.currency_rupee), // Rupee icon
+              prefixIcon: Icon(Icons.currency_rupee),
             ),
             keyboardType: TextInputType.number,
             inputFormatters: <TextInputFormatter>[
@@ -170,45 +242,41 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
             ),
           ),
           const SizedBox(height: 10),
-          CheckboxListTile(
-            title: const Text('Active'),
-            value: isActive,
-            onChanged: (value) {
-              setState(() {
-                isActive = value;
-                isLeft = value;
-                if (value!) {
-                  isLeft = false;
-                }
-              });
+          TextFormField(
+            initialValue: "+91",
+            decoration: const InputDecoration(
+              labelText: 'Phone Number',
+              border: OutlineInputBorder(),
+            ),
+            keyboardType: TextInputType.phone,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter a phone number';
+              }
+              return null;
+            },
+            onSaved: (value) {
+              studentPhoneNumber = value;
             },
           ),
-          CheckboxListTile(
-            title: const Text('Left'),
-            value: isLeft,
-            onChanged: (value) {
-              setState(() {
-                isLeft = value;
-                if (value!) {
-                  isActive = false;
-                }
-              });
-            },
-          ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 10),
+          const SizedBox(height: 10),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               if (_formKey.currentState!.validate()) {
                 _formKey.currentState!.save();
+                final studentId = const Uuid().v4().substring(0, 8);
                 addStudentToFirestore(
-                    user.uid!,
-                    studentName!,
-                    studentBatch!,
-                    joinedDate!,
-                    isActive!,
-                    isLeft!,
-                    chargePerMonth!); // Pass chargePerMonth to the function
-                // Trigger a rebuild of StudentsScreen
+                  user.uid!,
+                  studentName!,
+                  studentBatch!,
+                  joinedDate!,
+                  isActive!,
+                  isLeft!,
+                  chargePerMonth!,
+                  studentPhoneNumber!,
+                  selectedImageFile,
+                );
                 Navigator.pop(context);
               }
             },

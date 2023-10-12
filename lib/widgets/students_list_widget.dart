@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class StudentListTile extends StatelessWidget {
   final String title;
   final String subtitle;
+  final String imageUrl; // New imageUrl parameter
   final Function() onTap;
   final VoidCallback onPaymentsTap;
   final VoidCallback onEditTap;
@@ -10,6 +11,7 @@ class StudentListTile extends StatelessWidget {
   StudentListTile({
     required this.title,
     required this.subtitle,
+    required this.imageUrl, // New imageUrl parameter
     required this.onTap,
     required this.onPaymentsTap,
     required this.onEditTap,
@@ -26,6 +28,18 @@ class StudentListTile extends StatelessWidget {
         ),
         child: ListTile(
           contentPadding: EdgeInsets.all(15),
+          leading: Container(
+            // New leading container for the image
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              image: DecorationImage(
+                fit: BoxFit.cover,
+                image: NetworkImage(imageUrl), // Load the image from imageUrl
+              ),
+            ),
+          ),
           title: Text(
             title,
             style: TextStyle(

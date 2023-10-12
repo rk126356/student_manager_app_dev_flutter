@@ -1,11 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:student_manager_app_dev_flutter/providers/user_provider.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
 
 class EditStudentScreen extends StatelessWidget {
   final String studentId;
@@ -16,6 +13,7 @@ class EditStudentScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        // Close the keyboard when tapped outside of text fields
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
@@ -50,12 +48,9 @@ class _EditStudentFormState extends State<EditStudentForm> {
   String? joinedDate;
   bool? isActive;
   bool? isLeft;
-  bool isUnpaid = true;
-  bool isPaid = false;
-  bool _dataLoaded = false;
-  File? selectedImageFile;
-  String? studentPhoneNumber;
-  String? studentImageURL;
+  bool isUnpaid = true; // Default to Unpaid
+  bool isPaid = false; // Default to Unpaid
+  bool _dataLoaded = false; // Add this flag
 
   Future<void> _selectDate(BuildContext context, bool isJoinedDate) async {
     DateTime? selectedDate = await showDatePicker(
@@ -83,16 +78,16 @@ class _EditStudentFormState extends State<EditStudentForm> {
     String joinedDate,
     bool isActive,
     bool isLeft,
-    String studentPhoneNumber,
-    File? studentImage,
   ) async {
     final CollectionReference usersCollection =
         FirebaseFirestore.instance.collection('users');
 
     var user = Provider.of<UserProvider>(context, listen: false).userData;
 
+    // Create a document for the user with the provided UID
     DocumentReference userDocument = usersCollection.doc(user.uid);
 
+    // Add a subcollection named 'students'
     CollectionReference studentsCollection =
         userDocument.collection('students');
 
@@ -104,24 +99,9 @@ class _EditStudentFormState extends State<EditStudentForm> {
       'joinedDate': joinedDate,
       'isActive': isActive,
       'isLeft': isLeft,
-      'studentPhoneNumber': studentPhoneNumber,
-      'studentImageURL': studentImage != null
-          ? await uploadStudentImage(studentImage, widget.studentId)
-          : studentImageURL
     });
 
     print('Student data updated in Firestore with ID: ${widget.studentId}');
-  }
-
-  Future<String> uploadStudentImage(File image, String studentId) async {
-    // Upload the image to Firebase Storage
-    final storageReference =
-        FirebaseStorage.instance.ref().child('student_images/$studentId.jpg');
-    await storageReference.putFile(image);
-
-    // Get the download URL of the uploaded image
-    String imageUrl = await storageReference.getDownloadURL();
-    return imageUrl;
   }
 
   Future<void> deleteStudentFromFirestore(String studentId) async {
@@ -130,8 +110,10 @@ class _EditStudentFormState extends State<EditStudentForm> {
 
     var user = Provider.of<UserProvider>(context, listen: false).userData;
 
+    // Create a document for the user with the provided UID
     DocumentReference userDocument = usersCollection.doc(user.uid);
 
+    // Add a subcollection named 'students'
     CollectionReference studentsCollection =
         userDocument.collection('students');
 
@@ -139,18 +121,6 @@ class _EditStudentFormState extends State<EditStudentForm> {
     await studentsCollection.doc(widget.studentId).delete();
 
     print('Student deleted from Firestore with ID: ${widget.studentId}');
-  }
-
-  Future<void> _pickImage() async {
-    final ImagePicker _picker = ImagePicker();
-    final XFile? pickedImage =
-        await _picker.pickImage(source: ImageSource.gallery);
-
-    if (pickedImage != null) {
-      setState(() {
-        selectedImageFile = File(pickedImage.path);
-      });
-    }
   }
 
   @override
@@ -169,6 +139,7 @@ class _EditStudentFormState extends State<EditStudentForm> {
           return const CircularProgressIndicator();
         }
 
+        // Load data only once
         if (!_dataLoaded) {
           var studentData = snapshot.data!.data() as Map<String, dynamic>;
 
@@ -178,69 +149,15 @@ class _EditStudentFormState extends State<EditStudentForm> {
           joinedDate = studentData['joinedDate'];
           isActive = studentData['isActive'];
           isLeft = studentData['isLeft'];
-          studentPhoneNumber = studentData['studentPhoneNumber'];
-          studentImageURL = studentData['studentImageURL'];
 
           // Set the flag to true to indicate data has been loaded
           _dataLoaded = true;
-        }
-
-        Widget _buildImagePreview() {
-          print(selectedImageFile);
-          if (selectedImageFile != null) {
-            return InkWell(
-              onTap: () {
-                _pickImage(); // Call the image picker function
-                _buildImagePreview(); // Display the selected image preview
-              },
-              child: Container(
-                width: 150,
-                height: 150,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  image: DecorationImage(
-                    fit: BoxFit.cover,
-                    image: FileImage(selectedImageFile!),
-                  ),
-                ),
-              ),
-            );
-          } else {
-            return InkWell(
-              onTap: () {
-                _pickImage(); // Call the image picker function
-                _buildImagePreview(); // Display the selected image preview
-              },
-              child: Container(
-                width: 150,
-                height: 150,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  image: DecorationImage(
-                    fit: BoxFit.cover,
-                    image: NetworkImage(studentImageURL!),
-                  ),
-                ),
-              ),
-            );
-          }
         }
 
         return Form(
           key: _formKey,
           child: Column(
             children: [
-              _buildImagePreview(),
-              ElevatedButton(
-                onPressed: () {
-                  _pickImage(); // Call the image picker function
-                  _buildImagePreview(); // Display the selected image preview
-                },
-                child: const Text('Select Image'),
-              ),
-              SizedBox(
-                height: 10,
-              ),
               TextFormField(
                 initialValue: studentName,
                 decoration: const InputDecoration(
@@ -277,15 +194,15 @@ class _EditStudentFormState extends State<EditStudentForm> {
               const SizedBox(height: 10),
               TextFormField(
                 initialValue:
-                    chargePerMonth != null ? chargePerMonth.toString() : '',
+                    chargePerMonth != null ? chargePerMonth.toString() : "",
                 decoration: const InputDecoration(
                   labelText: 'Charge Per Month',
                   border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.currency_rupee),
+                  prefixIcon: Icon(Icons.currency_rupee), // Rupee icon
                 ),
                 keyboardType: TextInputType.number,
                 inputFormatters: <TextInputFormatter>[
-                  FilteringTextInputFormatter.digitsOnly,
+                  FilteringTextInputFormatter.digitsOnly
                 ],
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -298,36 +215,7 @@ class _EditStudentFormState extends State<EditStudentForm> {
                 },
               ),
               const SizedBox(height: 10),
-              InkWell(
-                onTap: () {
-                  _selectDate(context, true);
-                },
-                child: InputDecorator(
-                  decoration: const InputDecoration(
-                    labelText: 'Joined Date',
-                    border: OutlineInputBorder(),
-                  ),
-                  child: Text(joinedDate ?? ''),
-                ),
-              ),
               const SizedBox(height: 10),
-              TextFormField(
-                initialValue: studentPhoneNumber,
-                decoration: const InputDecoration(
-                  labelText: 'Phone Number',
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.phone,
-                validator: (value) {
-                  if (value == null || value!.isEmpty) {
-                    return 'Please enter a phone number';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  studentPhoneNumber = value;
-                },
-              ),
               CheckboxListTile(
                 title: const Text('Active'),
                 value: isActive ?? false,
@@ -352,7 +240,7 @@ class _EditStudentFormState extends State<EditStudentForm> {
                   });
                 },
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
@@ -365,9 +253,8 @@ class _EditStudentFormState extends State<EditStudentForm> {
                       joinedDate!,
                       isActive!,
                       isLeft!,
-                      studentPhoneNumber!,
-                      selectedImageFile,
                     );
+                    // Trigger a rebuild of StudentsScreen
                     Navigator.pop(context);
                   }
                 },
@@ -375,9 +262,11 @@ class _EditStudentFormState extends State<EditStudentForm> {
               ),
               ElevatedButton(
                 style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
+                  backgroundColor: MaterialStateProperty.all<Color>(Colors
+                      .red), // Change the color to your desired background color
                 ),
                 onPressed: () {
+                  // Show a confirmation dialog before deleting
                   showDialog(
                     context: context,
                     builder: (BuildContext context) {
@@ -395,9 +284,12 @@ class _EditStudentFormState extends State<EditStudentForm> {
                           TextButton(
                             child: Text('Delete'),
                             onPressed: () {
+                              // Perform the deletion operation here
                               deleteStudentFromFirestore(widget.studentId);
-                              Navigator.of(context).pop();
-                              Navigator.of(context).pop();
+                              Navigator.of(context)
+                                  .pop(); // Close the confirmation dialog
+                              Navigator.of(context)
+                                  .pop(); // Close EditStudentScreen
                             },
                           ),
                         ],

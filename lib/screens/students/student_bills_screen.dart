@@ -7,11 +7,11 @@ import 'package:student_manager_app_dev_flutter/screens/payments/edit_payments_s
 
 class StudentBillsScreen extends StatefulWidget {
   final String studentId;
+  final String studentName;
 
-  const StudentBillsScreen({
-    Key? key,
-    required this.studentId,
-  }) : super(key: key);
+  const StudentBillsScreen(
+      {Key? key, required this.studentId, required this.studentName})
+      : super(key: key);
 
   @override
   State<StudentBillsScreen> createState() => _StudentBillsScreenState();
@@ -23,7 +23,7 @@ class _StudentBillsScreenState extends State<StudentBillsScreen> {
     var user = Provider.of<UserProvider>(context, listen: false).userData;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Student Bills'),
+        title: Text("${widget.studentName} Bills"),
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance

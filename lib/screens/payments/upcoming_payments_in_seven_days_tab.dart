@@ -53,6 +53,7 @@ class UpcomingPaymentsSevenDaysTab extends StatelessWidget {
               final studentName = paymentData['studentName'];
               final studentBatch = paymentData['studentBatch'];
               final chargePerMonth = paymentData['chargePerMonth'];
+              final imageUrl = paymentData['studentImageURL'];
 
               // Format the nextBillDate to the desired format
               final formattedNextBillDate = DateFormat('MMM dd, yyyy').format(
@@ -63,6 +64,19 @@ class UpcomingPaymentsSevenDaysTab extends StatelessWidget {
                 elevation: 4,
                 margin: const EdgeInsets.all(8),
                 child: ListTile(
+                  leading: Container(
+                    // New leading container for the image
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      image: DecorationImage(
+                        fit: BoxFit.cover,
+                        image: NetworkImage(
+                            imageUrl), // Load the image from imageUrl
+                      ),
+                    ),
+                  ),
                   title: Text(
                     '$studentName - Batch: $studentBatch',
                     style: const TextStyle(
