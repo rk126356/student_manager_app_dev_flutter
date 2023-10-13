@@ -29,7 +29,7 @@ class HomePaidTab extends StatelessWidget {
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         }
 
         if (snapshot.hasError) {
@@ -37,7 +37,18 @@ class HomePaidTab extends StatelessWidget {
         }
 
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return Center(child: Text('No paid payments available.'));
+          return const Center(
+              child: Column(
+            children: [
+              SizedBox(
+                height: 20,
+              ),
+              Text(
+                'No paid payments available.',
+                style: TextStyle(color: Colors.white),
+              ),
+            ],
+          ));
         }
 
         final paidPayments = <Widget>[];
@@ -72,8 +83,9 @@ class HomePaidTab extends StatelessWidget {
                     ),
                   ),
                 ),
-                placeholder: (context, url) => CircularProgressIndicator(),
-                errorWidget: (context, url, error) => Icon(Icons.error),
+                placeholder: (context, url) =>
+                    const CircularProgressIndicator(),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
               ),
               title: Text(
                 '$studentName - $studentBatch',

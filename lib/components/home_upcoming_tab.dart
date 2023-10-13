@@ -53,7 +53,18 @@ class HomeUpcomingTab extends StatelessWidget {
         }
 
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return const Center(child: Text('No upcoming payments.'));
+          return const Center(
+              child: Column(
+            children: [
+              SizedBox(
+                height: 20,
+              ),
+              Text(
+                'No upcoming payments.',
+                style: TextStyle(color: Colors.white),
+              ),
+            ],
+          ));
         }
 
         final upcomingPayments = <Widget>[];
