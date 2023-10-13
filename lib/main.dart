@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +12,7 @@ import 'package:student_manager_app_dev_flutter/screens/payments/search_payments
 import 'package:student_manager_app_dev_flutter/screens/payments_page.dart';
 import 'package:student_manager_app_dev_flutter/screens/reports_page.dart';
 import 'package:student_manager_app_dev_flutter/screens/search_screen.dart';
+import 'package:student_manager_app_dev_flutter/screens/settings.dart';
 import 'package:student_manager_app_dev_flutter/screens/students/edit_student_screen.dart';
 import 'package:student_manager_app_dev_flutter/screens/students/student_form_screen.dart';
 import 'package:student_manager_app_dev_flutter/screens/students_page.dart';
@@ -78,6 +80,7 @@ class MyApp extends StatelessWidget {
         '/search-payments': (BuildContext context) =>
             const SearchPaymentsScreen(),
         '/reports': (BuildContext context) => ReportsScreen(),
+        '/settings': (BuildContext context) => SettingsScreen(),
       },
       debugShowCheckedModeBanner: false,
     );

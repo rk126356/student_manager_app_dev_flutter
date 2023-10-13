@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 class StudentListTile extends StatelessWidget {
@@ -28,16 +29,23 @@ class StudentListTile extends StatelessWidget {
         ),
         child: ListTile(
           contentPadding: EdgeInsets.all(15),
-          leading: Container(
+          leading: CachedNetworkImage(
             width: 60,
             height: 60,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              image: DecorationImage(
-                fit: BoxFit.cover,
-                image: NetworkImage(imageUrl), // Load the image from imageUrl
+            imageUrl: imageUrl,
+            imageBuilder: (context, imageProvider) => Container(
+              width: 60,
+              height: 60,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle, // Makes it a circle (Avatar-like)
+                image: DecorationImage(
+                  image: imageProvider,
+                  fit: BoxFit.cover, // You can use other BoxFit values
+                ),
               ),
             ),
+            placeholder: (context, url) => CircularProgressIndicator(),
+            errorWidget: (context, url, error) => Icon(Icons.error),
           ),
           title: Text(
             title,

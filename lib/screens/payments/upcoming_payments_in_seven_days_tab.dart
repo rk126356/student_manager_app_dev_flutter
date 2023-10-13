@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
@@ -64,18 +65,24 @@ class UpcomingPaymentsSevenDaysTab extends StatelessWidget {
                 elevation: 4,
                 margin: const EdgeInsets.all(8),
                 child: ListTile(
-                  leading: Container(
-                    // New leading container for the image
+                  leading: CachedNetworkImage(
                     width: 60,
                     height: 60,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      image: DecorationImage(
-                        fit: BoxFit.cover,
-                        image: NetworkImage(
-                            imageUrl), // Load the image from imageUrl
+                    imageUrl: imageUrl,
+                    imageBuilder: (context, imageProvider) => Container(
+                      width: 60,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        shape:
+                            BoxShape.circle, // Makes it a circle (Avatar-like)
+                        image: DecorationImage(
+                          image: imageProvider,
+                          fit: BoxFit.cover, // You can use other BoxFit values
+                        ),
                       ),
                     ),
+                    placeholder: (context, url) => CircularProgressIndicator(),
+                    errorWidget: (context, url, error) => Icon(Icons.error),
                   ),
                   title: Text(
                     '$studentName - Batch: $studentBatch',

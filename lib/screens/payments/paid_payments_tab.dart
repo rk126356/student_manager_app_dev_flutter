@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
@@ -152,17 +153,26 @@ class _PaidPaymentsTabState extends State<PaidPaymentsTab> {
                     elevation: 4,
                     margin: const EdgeInsets.all(8),
                     child: ListTile(
-                      leading: Container(
+                      leading: CachedNetworkImage(
                         width: 60,
                         height: 60,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                          image: DecorationImage(
-                            fit: BoxFit.cover,
-                            image: NetworkImage(paymentData['studentImageUrl']),
+                        imageUrl: paymentData['studentImageUrl'],
+                        imageBuilder: (context, imageProvider) => Container(
+                          width: 60,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            shape: BoxShape
+                                .circle, // Makes it a circle (Avatar-like)
+                            image: DecorationImage(
+                              image: imageProvider,
+                              fit: BoxFit
+                                  .cover, // You can use other BoxFit values
+                            ),
                           ),
                         ),
+                        placeholder: (context, url) =>
+                            CircularProgressIndicator(),
+                        errorWidget: (context, url, error) => Icon(Icons.error),
                       ),
                       title: Text(
                         '$studentName - Batch: $studentBatch',

@@ -84,19 +84,14 @@ class NavBar extends StatelessWidget {
           ),
           const Divider(),
           ListTile(
-            leading: const Icon(Icons.settings),
-            title: const Text('Settings'),
-            onTap: () {},
-          ),
-          ListTile(
             leading: const Icon(Icons.analytics),
             title: const Text('Reports'),
             onTap: () => Navigator.pushNamed(context, '/reports'),
           ),
           ListTile(
-            leading: const Icon(Icons.description),
-            title: const Text('Policies'),
-            onTap: () {},
+            leading: const Icon(Icons.settings),
+            title: const Text('Settings'),
+            onTap: () => Navigator.pushNamed(context, '/settings'),
           ),
           const Divider(),
           ListTile(

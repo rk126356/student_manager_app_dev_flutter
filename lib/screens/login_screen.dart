@@ -1,5 +1,5 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
@@ -7,7 +7,7 @@ import 'package:student_manager_app_dev_flutter/models/user_model.dart';
 import 'package:student_manager_app_dev_flutter/providers/user_provider.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  const LoginScreen({Key? key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -19,27 +19,18 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     Future<void> signInWithGoogle() async {
-      // Trigger the authentication flow
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-
-      // Obtain the auth details from the request
       final GoogleSignInAuthentication? googleAuth =
           await googleUser?.authentication;
-
-      // Create a new credential
       final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth?.accessToken,
         idToken: googleAuth?.idToken,
       );
 
       try {
-        // Sign in to Firebase Auth
         UserCredential authResult =
             await FirebaseAuth.instance.signInWithCredential(credential);
-
-        // Access the user's data
         final User? user = authResult.user;
-
         _user = user!;
 
         Provider.of<UserProvider>(context, listen: false).setUserData(UserModel(
@@ -48,7 +39,6 @@ class _LoginScreenState extends State<LoginScreen> {
             name: _user.displayName,
             avatarUrl: _user.photoURL));
 
-        // Store user data in Firestore
         if (user != null) {
           await FirebaseFirestore.instance
               .collection('users')
@@ -56,8 +46,8 @@ class _LoginScreenState extends State<LoginScreen> {
               .set({
             'displayName': user.displayName,
             'email': user.email,
-            'uid': user.uid
-            // Add more user data fields as needed
+            'uid': user.uid,
+            'avatarUrl': user.photoURL
           });
 
           print('User data stored in Firestore');
@@ -70,18 +60,72 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     return Scaffold(
-        appBar: AppBar(
-          title: const Text("Login"),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            colors: [Colors.deepPurple, Colors.purple],
+          ),
         ),
-        body: Column(
-          children: [
-            Text("Login Screen"),
-            ElevatedButton(
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Image.asset(
+                'assets/images/google-logo.png', // Add your app logo asset
+                height: 150, // Adjust the size as needed
+                width: 150,
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                "Welcome to Student Manager",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 25,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                "Organize your students and payments easily.",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 30),
+              ElevatedButton(
                 onPressed: () {
                   signInWithGoogle();
                 },
-                child: Text("Login"))
-          ],
-        ));
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.white,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Image.asset(
+                      'assets/images/google-logo.png', // Add your Google logo asset
+                      height: 24,
+                      width: 24,
+                    ),
+                    const SizedBox(width: 10),
+                    const Text(
+                      "Sign in with Google",
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
