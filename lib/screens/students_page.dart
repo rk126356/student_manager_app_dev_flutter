@@ -86,7 +86,7 @@ class _StudentsScreenState extends State<StudentsScreen>
         controller: _tabController,
         children: <Widget>[
           SingleChildScrollView(
-            padding: EdgeInsets.only(bottom: 150),
+            padding: const EdgeInsets.only(bottom: 150),
             child: Center(
               child: StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
@@ -104,7 +104,14 @@ class _StudentsScreenState extends State<StudentsScreen>
                     return Text('Error: ${snapshot.error}');
                   }
                   if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return const Text('No data available.');
+                    return const Column(
+                      children: [
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Text('No students available.'),
+                      ],
+                    );
                   }
                   final studentList = snapshot.data!.docs;
                   return Column(
@@ -159,7 +166,7 @@ class _StudentsScreenState extends State<StudentsScreen>
             ),
           ),
           SingleChildScrollView(
-            padding: EdgeInsets.only(bottom: 150),
+            padding: const EdgeInsets.only(bottom: 150),
             child: Center(
               child: StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
@@ -178,7 +185,14 @@ class _StudentsScreenState extends State<StudentsScreen>
                     return Text('Error: ${snapshot.error}');
                   }
                   if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return const Text('No active students available.');
+                    return const Column(
+                      children: [
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Text('No active students available.'),
+                      ],
+                    );
                   }
                   final activeStudentList = snapshot.data!.docs;
                   return Column(
@@ -233,7 +247,7 @@ class _StudentsScreenState extends State<StudentsScreen>
             ),
           ),
           SingleChildScrollView(
-            padding: EdgeInsets.only(bottom: 150),
+            padding: const EdgeInsets.only(bottom: 150),
             child: Center(
               child: StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
@@ -252,7 +266,14 @@ class _StudentsScreenState extends State<StudentsScreen>
                     return Text('Error: ${snapshot.error}');
                   }
                   if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return const Text('No left students available.');
+                    return const Column(
+                      children: [
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Text('No left students available.'),
+                      ],
+                    );
                   }
                   final leftStudentList = snapshot.data!.docs;
                   return Column(

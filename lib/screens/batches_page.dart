@@ -17,18 +17,20 @@ class _BatchesScreenState extends State<BatchesScreen> {
   Map<String, int> batchCounts = {};
   Map<String, double> batchTotalCharge = {};
   TextEditingController newBatchNameController = TextEditingController();
+  bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    // Call a function to fetch and calculate batch data
     fetchBatchData();
   }
 
   Future<void> fetchBatchData() async {
+    setState(() {
+      isLoading = true;
+    });
     var user = Provider.of<UserProvider>(context, listen: false).userData;
 
-    // Assuming you have a Firestore collection named 'students'
     QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
         .instance
         .collection('users')
@@ -41,16 +43,13 @@ class _BatchesScreenState extends State<BatchesScreen> {
       final studentBatch = document['studentBatch'] as String;
       final chargePerMonth = document['chargePerMonth'];
 
-      // Check if chargePerMonth is a double or can be converted to a double
       double charge = 0.0;
       if (chargePerMonth is int) {
-        // Convert int to double
         charge = chargePerMonth.toDouble();
       } else if (chargePerMonth is double) {
         charge = chargePerMonth;
       }
 
-      // Count the students in each batch
       if (!batchCounts.containsKey(studentBatch)) {
         batchNames.add(studentBatch);
         batchCounts[studentBatch] = 1;
@@ -62,15 +61,12 @@ class _BatchesScreenState extends State<BatchesScreen> {
       }
     }
 
-    // Update the state to rebuild the widget with the batch data
-    setState(() {});
+    setState(() {
+      isLoading = false;
+    });
   }
 
   void editBatchName(String batchName, String newBatchName) async {
-    // Implement your logic to change the studentBatch name here
-    // Example: You can update the 'studentBatch' field in Firestore for all students in the batch.
-    // You should run a batch update to update multiple documents at once.
-    // Replace 'students' with your actual Firestore collection name.
     var user = Provider.of<UserProvider>(context, listen: false).userData;
     await FirebaseFirestore.instance
         .collection('users')
@@ -86,28 +82,26 @@ class _BatchesScreenState extends State<BatchesScreen> {
     Navigator.pushReplacementNamed(context, '/batches');
   }
 
-  // Function to show the batch name edit dialog
   void showEditBatchNameDialog(String batchName) {
-    newBatchNameController.text =
-        batchName; // Initialize the input with the current batch name
+    newBatchNameController.text = batchName;
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Edit Batch Name'),
+          title: const Text('Edit Batch Name'),
           content: TextField(
             controller: newBatchNameController,
-            decoration: InputDecoration(labelText: 'New Batch Name'),
+            decoration: const InputDecoration(labelText: 'New Batch Name'),
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text('Save'),
+              child: const Text('Save'),
               onPressed: () {
                 String newBatchName = newBatchNameController.text;
                 editBatchName(batchName, newBatchName);
@@ -120,8 +114,60 @@ class _BatchesScreenState extends State<BatchesScreen> {
     );
   }
 
+  Future<void> deleteBatch(String batchName) async {
+    var user = Provider.of<UserProvider>(context, listen: false).userData;
+
+    bool confirmDelete = await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Confirm Deletion'),
+          content: Text(
+              'Are you sure you want to delete the batch "$batchName" and all its students?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+            ),
+            TextButton(
+              child: const Text('Delete'),
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmDelete == true) {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid!)
+          .collection('students')
+          .where('studentBatch', isEqualTo: batchName)
+          .get()
+          .then((querySnapshot) {
+        querySnapshot.docs.forEach((doc) {
+          doc.reference.delete();
+        });
+      });
+      Navigator.pushReplacementNamed(context, '/batches');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(
+          color: Colors.green,
+        ),
+      );
+    }
+
     return Scaffold(
       drawer: const NavBar(),
       appBar: AppBar(
@@ -129,7 +175,6 @@ class _BatchesScreenState extends State<BatchesScreen> {
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
-              // Call the refresh function here
               Navigator.pushReplacementNamed(context, '/batches');
             },
           ),
@@ -138,9 +183,8 @@ class _BatchesScreenState extends State<BatchesScreen> {
       ),
       body: WillPopScope(
         onWillPop: () async {
-          // Navigate back to '/home' when the back button is pressed
           Navigator.pushReplacementNamed(context, '/home');
-          return false; // Return false to prevent default back behavior
+          return false;
         },
         child: ListView.builder(
           itemCount: batchNames.length,
@@ -161,7 +205,7 @@ class _BatchesScreenState extends State<BatchesScreen> {
                   ),
                 ),
                 subtitle: Text(
-                  'Total Students: ${studentCount ?? 0} | Batch Value: ₹${totalCharge ?? 0.0}',
+                  'Total Students: ${studentCount ?? 0} | Value: ₹${totalCharge ?? 0.0}',
                   style: const TextStyle(
                     fontSize: 14,
                   ),
@@ -170,16 +214,21 @@ class _BatchesScreenState extends State<BatchesScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     IconButton(
-                      icon: Icon(Icons.edit, color: Colors.blue), // Edit icon
+                      icon: const Icon(Icons.edit, color: Colors.blue),
                       onPressed: () {
                         showEditBatchNameDialog(batchName);
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: () {
+                        deleteBatch(batchName);
                       },
                     ),
                     const Icon(Icons.arrow_right, color: Colors.blue),
                   ],
                 ),
                 onTap: () {
-                  // Navigate to InsideBatchesScreen and pass batchName as a parameter
                   Navigator.push(
                     context,
                     MaterialPageRoute(

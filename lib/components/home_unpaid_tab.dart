@@ -75,7 +75,7 @@ class HomeUnpaidTab extends StatelessWidget {
                 errorWidget: (context, url, error) => Icon(Icons.error),
               ),
               title: Text(
-                '$studentName - Batch: $studentBatch',
+                '$studentName - $studentBatch',
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -109,7 +109,18 @@ class HomeUnpaidTab extends StatelessWidget {
         }
 
         if (paidPayments.isEmpty) {
-          return Center(child: Text('No paid payments available.'));
+          return const Center(
+              child: Column(
+            children: [
+              SizedBox(
+                height: 20,
+              ),
+              Text(
+                'No Unpaid payments available.',
+                style: TextStyle(color: Colors.white),
+              ),
+            ],
+          ));
         }
 
         return Column(

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:student_manager_app_dev_flutter/utils/send_bill_whatsapp.dart';
+import 'package:student_manager_app_dev_flutter/utils/send_whatsapp_reminder.dart';
 
 class EditPaymentsScreen extends StatefulWidget {
   final String studentId;
@@ -22,6 +24,9 @@ class EditPaymentsScreen extends StatefulWidget {
 class _EditPaymentsScreenState extends State<EditPaymentsScreen> {
   String? paidDate;
   bool isPaid = false;
+
+  String studentPhoneNumber = '';
+  int chargePerMonth = 0;
 
   @override
   void initState() {
@@ -45,6 +50,8 @@ class _EditPaymentsScreenState extends State<EditPaymentsScreen> {
 
         setState(() {
           isPaid = paymentData['isPaid'];
+          chargePerMonth = paymentData['chargePerMonth'];
+          studentPhoneNumber = paymentData['studentPhoneNumber'];
           final paidDateTimestamp = paymentData['paidDate'] as Timestamp?;
           if (paidDateTimestamp != null) {
             paidDate = paidDateTimestamp.toDate().toString();
@@ -130,8 +137,8 @@ class _EditPaymentsScreenState extends State<EditPaymentsScreen> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Delete Payment'),
-          content: SingleChildScrollView(
+          title: const Text('Delete Payment'),
+          content: const SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
                 Text('Are you sure you want to delete this payment?'),
@@ -140,13 +147,13 @@ class _EditPaymentsScreenState extends State<EditPaymentsScreen> {
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text('Delete'),
+              child: const Text('Delete'),
               onPressed: () {
                 deletePayment();
                 Navigator.of(context).pop();
@@ -162,7 +169,7 @@ class _EditPaymentsScreenState extends State<EditPaymentsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit Payment Status'),
+        title: const Text('Edit Payment Status'),
       ),
       body: Center(
         child: Column(
@@ -170,12 +177,12 @@ class _EditPaymentsScreenState extends State<EditPaymentsScreen> {
           children: <Widget>[
             Text(
               "Student Name: ${widget.studentName}",
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Container(
               width: 150,
               height: 150,
@@ -187,7 +194,7 @@ class _EditPaymentsScreenState extends State<EditPaymentsScreen> {
                     color: Colors.grey.withOpacity(0.5),
                     spreadRadius: 3,
                     blurRadius: 5,
-                    offset: Offset(0, 3),
+                    offset: const Offset(0, 3),
                   ),
                 ],
               ),
@@ -199,7 +206,7 @@ class _EditPaymentsScreenState extends State<EditPaymentsScreen> {
                 ),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Text(
               isPaid ? 'Payment Received' : 'Payment Not Received',
               style: TextStyle(
@@ -208,7 +215,7 @@ class _EditPaymentsScreenState extends State<EditPaymentsScreen> {
                 color: isPaid ? Colors.green : Colors.red,
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Switch(
               value: isPaid,
               onChanged: (newValue) {
@@ -217,30 +224,30 @@ class _EditPaymentsScreenState extends State<EditPaymentsScreen> {
               activeColor: Colors.green,
               inactiveTrackColor: Colors.red.withOpacity(0.5),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Text(
               "Bill Date: ${DateFormat('dd MMMM yyyy').format(DateTime.parse(widget.billDate))}",
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 16,
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             if (paidDate != null)
               Text(
                 "Paid Date: ${DateFormat('dd MMMM yyyy').format(DateTime.parse(paidDate!))}",
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 16,
                 ),
               ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
               style: ElevatedButton.styleFrom(
-                primary: Colors.blue,
+                backgroundColor: Colors.blue,
               ),
-              child: Text(
+              child: const Text(
                 'Go Back',
                 style: TextStyle(
                   fontSize: 16,
@@ -248,14 +255,46 @@ class _EditPaymentsScreenState extends State<EditPaymentsScreen> {
                 ),
               ),
             ),
+            if (isPaid)
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                ),
+                onPressed: () {
+                  sendWhatsappBill(
+                    studentName: widget.studentName,
+                    studentPhoneNumber: studentPhoneNumber,
+                    formattedNextBillDate: DateFormat('dd MMMM yyyy')
+                        .format(DateTime.parse(paidDate!)),
+                    chargePerMonth: chargePerMonth.toString(),
+                  );
+                },
+                child: const Text('Send Payment Bill WhatsApp'),
+              ),
+            if (!isPaid)
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                ),
+                onPressed: () {
+                  sendWhatsAppReminder(
+                    studentName: widget.studentName,
+                    studentPhoneNumber: studentPhoneNumber,
+                    formattedNextBillDate: DateFormat('dd MMMM yyyy')
+                        .format(DateTime.parse(widget.billDate)),
+                    chargePerMonth: chargePerMonth.toString(),
+                  );
+                },
+                child: const Text('Send Reminder WhatsApp'),
+              ),
             ElevatedButton(
               onPressed: () {
                 showDeleteConfirmationDialog();
               },
               style: ElevatedButton.styleFrom(
-                primary: Colors.red,
+                backgroundColor: Colors.red,
               ),
-              child: Text(
+              child: const Text(
                 'Delete This Payment',
                 style: TextStyle(
                   fontSize: 16,

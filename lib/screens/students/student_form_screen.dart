@@ -233,6 +233,9 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
               ),
             ],
           ),
+          const SizedBox(
+            height: 10,
+          ),
           TextFormField(
             decoration: const InputDecoration(
               labelText: 'Student Name',
@@ -285,7 +288,7 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
               chargePerMonth = int.parse(value!);
             },
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 15),
           InkWell(
             onTap: () {
               _selectDate(context);
@@ -298,7 +301,7 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
               child: Text(joinedDate ?? ''),
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 15),
           TextFormField(
             initialValue: "+91",
             decoration: const InputDecoration(
@@ -316,8 +319,7 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
               studentPhoneNumber = value;
             },
           ),
-          const SizedBox(height: 10),
-          const SizedBox(height: 10),
+          const SizedBox(height: 15),
           ElevatedButton(
             onPressed: () async {
               if (_formKey.currentState!.validate()) {
@@ -336,7 +338,14 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
                 );
               }
             },
-            child: const Text('Create Student'),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.add), // Add an icon to the button
+                SizedBox(width: 8), // Add some space between the icon and text
+                Text('Create Student'),
+              ],
+            ),
           ),
         ],
       ),

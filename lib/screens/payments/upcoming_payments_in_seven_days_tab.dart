@@ -4,6 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:student_manager_app_dev_flutter/providers/user_provider.dart';
+import 'package:student_manager_app_dev_flutter/screens/payments/inside_upcoing_payments_screen.dart';
+import 'package:student_manager_app_dev_flutter/utils/send_whatsapp_reminder.dart';
 
 class UpcomingPaymentsSevenDaysTab extends StatelessWidget {
   const UpcomingPaymentsSevenDaysTab({Key? key});
@@ -97,7 +99,28 @@ class UpcomingPaymentsSevenDaysTab extends StatelessWidget {
                       fontSize: 14,
                     ),
                   ),
-                  // Add more payment details as needed
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => InsideUpcomingPaymentsScreen(
+                          paymentData: paymentData,
+                        ),
+                      ),
+                    );
+                  },
+                  trailing: IconButton(
+                      onPressed: () {
+                        sendWhatsAppReminder(
+                          studentName: studentName,
+                          studentPhoneNumber: paymentData['studentPhoneNumber'],
+                          formattedNextBillDate: formattedNextBillDate,
+                          chargePerMonth: chargePerMonth.toString(),
+                        );
+                      },
+                      icon: const Icon(
+                        Icons.send,
+                        color: Colors.blue,
+                      )),
                 ),
               );
             } else {

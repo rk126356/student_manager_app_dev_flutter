@@ -175,7 +175,7 @@ class _UnpaidPaymentsTabState extends State<UnpaidPaymentsTab> {
                         errorWidget: (context, url, error) => Icon(Icons.error),
                       ),
                       title: Text(
-                        '$studentName - Batch: $studentBatch',
+                        '$studentName - $studentBatch',
                         style: titleTextStyle,
                       ),
                       subtitle: Text(

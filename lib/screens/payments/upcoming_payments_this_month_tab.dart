@@ -4,6 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:student_manager_app_dev_flutter/providers/user_provider.dart';
+import 'package:student_manager_app_dev_flutter/screens/payments/inside_upcoing_payments_screen.dart';
+import 'package:student_manager_app_dev_flutter/utils/send_whatsapp_reminder.dart';
 
 class UpcomingPaymentsThisMonthTab extends StatelessWidget {
   const UpcomingPaymentsThisMonthTab({Key? key});
@@ -58,6 +60,7 @@ class UpcomingPaymentsThisMonthTab extends StatelessWidget {
               final studentBatch = paymentData['studentBatch'];
               final chargePerMonth = paymentData['chargePerMonth'];
               final imageUrl = paymentData['studentImageURL'];
+              final studentPhoneNumber = paymentData['studentPhoneNumber'];
 
               // Format the nextBillDate to the desired format
               final formattedNextBillDate = DateFormat('MMM dd, yyyy').format(
@@ -69,8 +72,6 @@ class UpcomingPaymentsThisMonthTab extends StatelessWidget {
                 margin: const EdgeInsets.all(8), // Adjust the margin as needed
                 child: ListTile(
                   leading: CachedNetworkImage(
-                    width: 60,
-                    height: 60,
                     imageUrl: imageUrl,
                     imageBuilder: (context, imageProvider) => Container(
                       width: 60,
@@ -84,8 +85,10 @@ class UpcomingPaymentsThisMonthTab extends StatelessWidget {
                         ),
                       ),
                     ),
-                    placeholder: (context, url) => CircularProgressIndicator(),
-                    errorWidget: (context, url, error) => Icon(Icons.error),
+                    placeholder: (context, url) =>
+                        const CircularProgressIndicator(),
+                    errorWidget: (context, url, error) =>
+                        const Icon(Icons.error),
                   ),
                   title: Text(
                     studentBatch != null
@@ -105,8 +108,27 @@ class UpcomingPaymentsThisMonthTab extends StatelessWidget {
                     ),
                   ),
                   onTap: () {
-                    // Handle onTap for each payment if needed
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => InsideUpcomingPaymentsScreen(
+                          paymentData: paymentData,
+                        ),
+                      ),
+                    );
                   },
+                  trailing: IconButton(
+                      onPressed: () {
+                        sendWhatsAppReminder(
+                          studentName: studentName,
+                          studentPhoneNumber: studentPhoneNumber,
+                          formattedNextBillDate: formattedNextBillDate,
+                          chargePerMonth: chargePerMonth.toString(),
+                        );
+                      },
+                      icon: const Icon(
+                        Icons.send,
+                        color: Colors.blue,
+                      )),
                 ),
               );
             } else {

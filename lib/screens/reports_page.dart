@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -258,21 +259,29 @@ class _ReportsScreenState extends State<ReportsScreen> {
                           elevation: 4,
                           margin: const EdgeInsets.all(8),
                           child: ListTile(
-                            leading: Container(
-                              width: 60,
+                            leading: CachedNetworkImage(
                               height: 60,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
-                                image: DecorationImage(
-                                  fit: BoxFit.cover,
-                                  image: NetworkImage(
-                                      paymentData['studentImageUrl']),
+                              width: 60,
+                              imageUrl: paymentData['studentImageUrl'],
+                              imageBuilder: (context, imageProvider) =>
+                                  Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape
+                                      .circle, // Makes it a circle (Avatar-like)
+                                  image: DecorationImage(
+                                    image: imageProvider,
+                                    fit: BoxFit
+                                        .cover, // You can use other BoxFit values
+                                  ),
                                 ),
                               ),
+                              placeholder: (context, url) =>
+                                  const CircularProgressIndicator(),
+                              errorWidget: (context, url, error) =>
+                                  const Icon(Icons.error),
                             ),
                             title: Text(
-                              '$studentName - Batch: $studentBatch',
+                              '$studentName - $studentBatch',
                               style: titleTextStyle,
                             ),
                             subtitle: Text(

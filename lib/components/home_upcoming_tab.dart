@@ -4,6 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:student_manager_app_dev_flutter/providers/user_provider.dart';
+import 'package:student_manager_app_dev_flutter/screens/payments/inside_upcoing_payments_screen.dart';
+import 'package:student_manager_app_dev_flutter/utils/send_whatsapp_reminder.dart';
 import 'package:student_manager_app_dev_flutter/widgets/my_list_tile_widget.dart';
 
 class HomeUpcomingTab extends StatelessWidget {
@@ -104,9 +106,7 @@ class HomeUpcomingTab extends StatelessWidget {
                   errorWidget: (context, url, error) => Icon(Icons.error),
                 ),
                 title: Text(
-                  batchName != null
-                      ? "$studentName - Batch: $batchName"
-                      : studentName,
+                  batchName != null ? "$studentName - $batchName" : studentName,
                   style: const TextStyle(
                     fontSize: 16, // Adjust the font size as needed
                     fontWeight: FontWeight.bold, // Apply bold style if desired
@@ -121,7 +121,27 @@ class HomeUpcomingTab extends StatelessWidget {
                 ),
                 onTap: () {
                   // Handle onTap for each payment if needed
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => InsideUpcomingPaymentsScreen(
+                        paymentData: paymentData,
+                      ),
+                    ),
+                  );
                 },
+                trailing: IconButton(
+                    onPressed: () {
+                      sendWhatsAppReminder(
+                        studentName: studentName,
+                        studentPhoneNumber: paymentData['studentPhoneNumber'],
+                        formattedNextBillDate: formattedNextBillDate,
+                        chargePerMonth: chargePerMonth.toString(),
+                      );
+                    },
+                    icon: const Icon(
+                      Icons.send,
+                      color: Colors.blue,
+                    )),
               ),
             );
 
@@ -130,7 +150,18 @@ class HomeUpcomingTab extends StatelessWidget {
         }
 
         if (upcomingPayments.isEmpty) {
-          return const Center(child: Text('No upcoming payments.'));
+          return const Center(
+              child: Column(
+            children: [
+              SizedBox(
+                height: 20,
+              ),
+              Text(
+                'No upcoming payments.',
+                style: TextStyle(color: Colors.white),
+              ),
+            ],
+          ));
         }
 
         return Column(

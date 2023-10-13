@@ -85,8 +85,6 @@ class _InsideBatchesScreenState extends State<InsideBatchesScreen> {
                   margin: const EdgeInsets.all(8),
                   child: ListTile(
                     leading: CachedNetworkImage(
-                      width: 60,
-                      height: 60,
                       imageUrl: studentData['studentImageURL'],
                       imageBuilder: (context, imageProvider) => Container(
                         width: 60,
@@ -102,8 +100,9 @@ class _InsideBatchesScreenState extends State<InsideBatchesScreen> {
                         ),
                       ),
                       placeholder: (context, url) =>
-                          CircularProgressIndicator(),
-                      errorWidget: (context, url, error) => Icon(Icons.error),
+                          const CircularProgressIndicator(),
+                      errorWidget: (context, url, error) =>
+                          const Icon(Icons.error),
                     ),
                     title: Text(
                       studentName,
@@ -131,7 +130,7 @@ class _InsideBatchesScreenState extends State<InsideBatchesScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
-                          icon: Icon(Icons.delete, color: Colors.red),
+                          icon: const Icon(Icons.delete, color: Colors.red),
                           onPressed: () {
                             showRemoveDialog(studentId);
                           },
@@ -140,8 +139,8 @@ class _InsideBatchesScreenState extends State<InsideBatchesScreen> {
                           width: 5,
                         ),
                         IconButton(
-                          icon:
-                              Icon(Icons.arrow_forward_ios, color: Colors.blue),
+                          icon: const Icon(Icons.arrow_forward_ios,
+                              color: Colors.blue),
                           onPressed: () {
                             Navigator.push(
                               context,

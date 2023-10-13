@@ -310,8 +310,8 @@ class _EditStudentFormState extends State<EditStudentForm> {
                   ),
                 ],
               ),
-              SizedBox(
-                height: 10,
+              const SizedBox(
+                height: 20,
               ),
               TextFormField(
                 initialValue: studentName,
@@ -329,7 +329,7 @@ class _EditStudentFormState extends State<EditStudentForm> {
                   studentName = value;
                 },
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 15),
               TextFormField(
                 initialValue: studentBatch,
                 decoration: const InputDecoration(
@@ -346,43 +346,54 @@ class _EditStudentFormState extends State<EditStudentForm> {
                   studentBatch = value;
                 },
               ),
-              const SizedBox(height: 10),
-              TextFormField(
-                initialValue:
-                    chargePerMonth != null ? chargePerMonth.toString() : '',
-                decoration: const InputDecoration(
-                  labelText: 'Charge Per Month',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.currency_rupee),
-                ),
-                keyboardType: TextInputType.number,
-                inputFormatters: <TextInputFormatter>[
-                  FilteringTextInputFormatter.digitsOnly,
-                ],
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter the charge per month';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  chargePerMonth = int.parse(value!);
-                },
-              ),
-              const SizedBox(height: 10),
-              InkWell(
-                onTap: () {
-                  _selectDate(context, true);
-                },
-                child: InputDecorator(
-                  decoration: const InputDecoration(
-                    labelText: 'Joined Date',
-                    border: OutlineInputBorder(),
+              const SizedBox(height: 15),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      initialValue: chargePerMonth != null
+                          ? chargePerMonth.toString()
+                          : '',
+                      decoration: const InputDecoration(
+                        labelText: 'Charge Per Month',
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.currency_rupee),
+                      ),
+                      keyboardType: TextInputType.number,
+                      inputFormatters: <TextInputFormatter>[
+                        FilteringTextInputFormatter.digitsOnly,
+                      ],
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter the charge per month';
+                        }
+                        return null;
+                      },
+                      onSaved: (value) {
+                        chargePerMonth = int.parse(value!);
+                      },
+                    ),
                   ),
-                  child: Text(joinedDate ?? ''),
-                ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  Expanded(
+                    child: InkWell(
+                      onTap: () {
+                        _selectDate(context, true);
+                      },
+                      child: InputDecorator(
+                        decoration: const InputDecoration(
+                          labelText: 'Joined Date',
+                          border: OutlineInputBorder(),
+                        ),
+                        child: Text(joinedDate ?? ''),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 15),
               TextFormField(
                 initialValue: studentPhoneNumber,
                 decoration: const InputDecoration(
@@ -400,29 +411,38 @@ class _EditStudentFormState extends State<EditStudentForm> {
                   studentPhoneNumber = value;
                 },
               ),
-              CheckboxListTile(
-                title: const Text('Active'),
-                value: isActive ?? false,
-                onChanged: (value) {
-                  setState(() {
-                    isActive = value;
-                    if (value!) {
-                      isLeft = false;
-                    }
-                  });
-                },
-              ),
-              CheckboxListTile(
-                title: const Text('Left'),
-                value: isLeft ?? false,
-                onChanged: (value) {
-                  setState(() {
-                    isLeft = value;
-                    if (value!) {
-                      isActive = false;
-                    }
-                  });
-                },
+              const SizedBox(height: 5),
+              Row(
+                children: [
+                  Expanded(
+                    child: CheckboxListTile(
+                      title: const Text('Active'),
+                      value: isActive ?? false,
+                      onChanged: (value) {
+                        setState(() {
+                          isActive = value;
+                          if (value!) {
+                            isLeft = false;
+                          }
+                        });
+                      },
+                    ),
+                  ),
+                  Expanded(
+                    child: CheckboxListTile(
+                      title: const Text('Left'),
+                      value: isLeft ?? false,
+                      onChanged: (value) {
+                        setState(() {
+                          isLeft = value;
+                          if (value!) {
+                            isActive = false;
+                          }
+                        });
+                      },
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 10),
               ElevatedButton(
@@ -442,7 +462,14 @@ class _EditStudentFormState extends State<EditStudentForm> {
                     );
                   }
                 },
-                child: const Text('Update Student'),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.save),
+                    SizedBox(width: 8),
+                    Text('Update Student'),
+                  ],
+                ),
               ),
             ],
           ),

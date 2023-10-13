@@ -174,7 +174,7 @@ class _AllPaymentsTabState extends State<AllPaymentsTab> {
                         errorWidget: (context, url, error) => Icon(Icons.error),
                       ),
                       title: Text(
-                        '$studentName - Batch: $studentBatch',
+                        '$studentName - $studentBatch',
                         style: titleTextStyle,
                       ),
                       subtitle: Text(

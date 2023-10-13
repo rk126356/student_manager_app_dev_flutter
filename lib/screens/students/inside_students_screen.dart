@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
@@ -38,24 +39,29 @@ class StudentCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            // Image preview
             Center(
-              child: Container(
-                width: 150,
+              child: CachedNetworkImage(
                 height: 150,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  image: DecorationImage(
-                    fit: BoxFit.cover,
-                    image: NetworkImage(studentImageUrl),
+                width: 150,
+                imageUrl: studentImageUrl,
+                imageBuilder: (context, imageProvider) => Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle, // Makes it a circle (Avatar-like)
+                    image: DecorationImage(
+                      image: imageProvider,
+                      fit: BoxFit.cover, // You can use other BoxFit values
+                    ),
                   ),
                 ),
+                placeholder: (context, url) =>
+                    const CircularProgressIndicator(),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
               ),
             ),
             const SizedBox(height: 16.0), // Add some spacing
 
             // Other student details
-            Text(
+            const Text(
               'Student Name',
               style: TextStyle(
                 fontSize: 20.0,
@@ -74,7 +80,7 @@ class StudentCard extends StatelessWidget {
               thickness: 1.0,
               height: 20.0,
             ),
-            Text(
+            const Text(
               'Batch',
               style: TextStyle(
                 fontSize: 20.0,
@@ -93,7 +99,7 @@ class StudentCard extends StatelessWidget {
               thickness: 1.0,
               height: 20.0,
             ),
-            Text(
+            const Text(
               'Joined Date',
               style: TextStyle(
                 fontSize: 20.0,
@@ -112,7 +118,7 @@ class StudentCard extends StatelessWidget {
               thickness: 1.0,
               height: 20.0,
             ),
-            Text(
+            const Text(
               'Next Bill Date',
               style: TextStyle(
                 fontSize: 20.0,
@@ -131,7 +137,7 @@ class StudentCard extends StatelessWidget {
               thickness: 1.0,
               height: 20.0,
             ),
-            Text(
+            const Text(
               'Phone Number',
               style: TextStyle(
                 fontSize: 20.0,
@@ -150,7 +156,7 @@ class StudentCard extends StatelessWidget {
               thickness: 1.0,
               height: 24.0,
             ),
-            Text(
+            const Text(
               'Status',
               style: TextStyle(
                 fontSize: 20.0,
@@ -179,7 +185,7 @@ class StudentCard extends StatelessWidget {
               thickness: 1.0,
               height: 24.0,
             ),
-            Text(
+            const Text(
               'Fee Per Month',
               style: TextStyle(
                 fontSize: 20.0,
@@ -256,7 +262,7 @@ class _InsideStudentScreenState extends State<InsideStudentScreen> {
       appBar: AppBar(
         actions: [
           IconButton(
-            icon: Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh),
             onPressed: () {
               fetchStudentData();
               setState(() {});

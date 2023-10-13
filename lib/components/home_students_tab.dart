@@ -34,8 +34,18 @@ class HomeStudentsTab extends StatelessWidget {
           return Text('Error: ${snapshot.error}');
         }
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return Text(
-              'No data available.'); // Handle the case where there's no data
+          return const Center(
+              child: Column(
+            children: [
+              SizedBox(
+                height: 20,
+              ),
+              Text(
+                'No students available.',
+                style: TextStyle(color: Colors.white),
+              ),
+            ],
+          ));
         }
         final studentList = snapshot.data!.docs;
         return Column(

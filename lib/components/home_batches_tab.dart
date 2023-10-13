@@ -68,6 +68,20 @@ class _HomeBatchesTabState extends State<HomeBatchesTab> {
 
   @override
   Widget build(BuildContext context) {
+    if (batchCounts.isEmpty) {
+      return const Center(
+          child: Column(
+        children: [
+          SizedBox(
+            height: 20,
+          ),
+          Text(
+            'No Batch available.',
+            style: TextStyle(color: Colors.white),
+          ),
+        ],
+      ));
+    }
     return Column(
       children: [
         for (var batchName in batchNames)
