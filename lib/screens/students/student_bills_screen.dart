@@ -43,7 +43,7 @@ class _StudentBillsScreenState extends State<StudentBillsScreen> {
 
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
             return const Center(
-                child: Text('No bills available for this date.'));
+                child: Text('No bills available for this student.'));
           }
 
           return ListView.builder(
@@ -80,7 +80,7 @@ class _StudentBillsScreenState extends State<StudentBillsScreen> {
                 child: ListTile(
                   leading: Icon(icon, color: Colors.white),
                   title: Text(
-                    'Amount: $billAmount',
+                    'Amount: ₹$billAmount',
                     style: titleTextStyle,
                   ),
                   subtitle: Text(

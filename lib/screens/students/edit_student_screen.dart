@@ -2,10 +2,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:student_manager_app_dev_flutter/providers/user_provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+
+import 'package:uuid/uuid.dart';
 
 class EditStudentScreen extends StatelessWidget {
   final String studentId;
@@ -56,6 +59,16 @@ class _EditStudentFormState extends State<EditStudentForm> {
   File? selectedImageFile;
   String? studentPhoneNumber;
   String? studentImageURL;
+  bool isLoading = false;
+  String? lastBillDate;
+
+  @override
+  void initState() {
+    super.initState();
+    final currentDate = DateTime.now();
+    lastBillDate =
+        "${currentDate.day}/${currentDate.month}/${currentDate.year}";
+  }
 
   Future<void> _selectDate(BuildContext context, bool isJoinedDate) async {
     DateTime? selectedDate = await showDatePicker(
@@ -86,6 +99,9 @@ class _EditStudentFormState extends State<EditStudentForm> {
     String studentPhoneNumber,
     File? studentImage,
   ) async {
+    setState(() {
+      isLoading = true;
+    });
     final CollectionReference usersCollection =
         FirebaseFirestore.instance.collection('users');
 
@@ -95,6 +111,25 @@ class _EditStudentFormState extends State<EditStudentForm> {
 
     CollectionReference studentsCollection =
         userDocument.collection('students');
+
+    final DateTime parsedJoinedDate =
+        DateFormat('dd/MM/yyyy').parse(lastBillDate!);
+    final DateTime nextBillDate =
+        parsedJoinedDate.add(const Duration(days: 30));
+
+    studentsCollection.doc(widget.studentId).get().then((doc) async {
+      if (doc.exists) {
+        if (isActive != doc['isActive'] && isLeft != doc['isLeft']) {
+          bool searverActive = doc['isActive'];
+          print("$isActive and $searverActive");
+
+          await studentsCollection.doc(widget.studentId).update({
+            'nextBillDate': DateFormat('dd/MM/yyyy').format(nextBillDate),
+            'lastBillDate': lastBillDate,
+          });
+        }
+      }
+    });
 
     // Update the document with the provided studentId
     await studentsCollection.doc(widget.studentId).update({
@@ -111,12 +146,19 @@ class _EditStudentFormState extends State<EditStudentForm> {
     });
 
     print('Student data updated in Firestore with ID: ${widget.studentId}');
+    setState(() {
+      isLoading = false;
+    });
+    Navigator.of(context).pop();
   }
 
   Future<String> uploadStudentImage(File image, String studentId) async {
+    final String imgId = const Uuid().v4().substring(0, 8);
+
     // Upload the image to Firebase Storage
-    final storageReference =
-        FirebaseStorage.instance.ref().child('student_images/$studentId.jpg');
+    final storageReference = FirebaseStorage.instance
+        .ref()
+        .child('student_images/$studentId/$imgId.jpg');
     await storageReference.putFile(image);
 
     // Get the download URL of the uploaded image
@@ -128,8 +170,10 @@ class _EditStudentFormState extends State<EditStudentForm> {
     Uri modifiedUri = Uri(
       scheme: originalUri.scheme,
       host: originalUri.host,
-      path: originalUri.path.replaceRange(originalUri.path.lastIndexOf('/') + 1,
-          originalUri.path.length, "student_images%2F${studentId}_200x200.png"),
+      path: originalUri.path.replaceRange(
+          originalUri.path.lastIndexOf('/') + 1,
+          originalUri.path.length,
+          "student_images%2F$studentId%2F${imgId}_200x200.png"),
     );
 
 // Get the modified URL as a string
@@ -138,27 +182,22 @@ class _EditStudentFormState extends State<EditStudentForm> {
     return "$modifiedUrl?alt=media";
   }
 
-  Future<void> deleteStudentFromFirestore(String studentId) async {
-    final CollectionReference usersCollection =
-        FirebaseFirestore.instance.collection('users');
-
-    var user = Provider.of<UserProvider>(context, listen: false).userData;
-
-    DocumentReference userDocument = usersCollection.doc(user.uid);
-
-    CollectionReference studentsCollection =
-        userDocument.collection('students');
-
-    // Delete the document with the provided studentId
-    await studentsCollection.doc(widget.studentId).delete();
-
-    print('Student deleted from Firestore with ID: ${widget.studentId}');
-  }
-
   Future<void> _pickImage() async {
     final ImagePicker _picker = ImagePicker();
     final XFile? pickedImage =
-        await _picker.pickImage(source: ImageSource.gallery);
+        await _picker.pickImage(source: ImageSource.gallery, imageQuality: 5);
+
+    if (pickedImage != null) {
+      setState(() {
+        selectedImageFile = File(pickedImage.path);
+      });
+    }
+  }
+
+  Future<void> _pickImageCamers() async {
+    final ImagePicker _picker = ImagePicker();
+    final XFile? pickedImage =
+        await _picker.pickImage(source: ImageSource.camera, imageQuality: 10);
 
     if (pickedImage != null) {
       setState(() {
@@ -202,42 +241,36 @@ class _EditStudentFormState extends State<EditStudentForm> {
         Widget _buildImagePreview() {
           print(selectedImageFile);
           if (selectedImageFile != null) {
-            return InkWell(
-              onTap: () {
-                _pickImage(); // Call the image picker function
-                _buildImagePreview(); // Display the selected image preview
-              },
-              child: Container(
-                width: 150,
-                height: 150,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  image: DecorationImage(
-                    fit: BoxFit.cover,
-                    image: FileImage(selectedImageFile!),
-                  ),
+            return Container(
+              width: 150,
+              height: 150,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                image: DecorationImage(
+                  fit: BoxFit.cover,
+                  image: FileImage(selectedImageFile!),
                 ),
               ),
             );
           } else {
-            return InkWell(
-              onTap: () {
-                _pickImage(); // Call the image picker function
-                _buildImagePreview(); // Display the selected image preview
-              },
-              child: Container(
-                width: 150,
-                height: 150,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  image: DecorationImage(
-                    fit: BoxFit.cover,
-                    image: NetworkImage(studentImageURL!),
-                  ),
+            return Container(
+              width: 150,
+              height: 150,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                image: DecorationImage(
+                  fit: BoxFit.cover,
+                  image: NetworkImage(studentImageURL!),
                 ),
               ),
             );
           }
+        }
+
+        if (isLoading) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
         }
 
         return Form(
@@ -245,12 +278,37 @@ class _EditStudentFormState extends State<EditStudentForm> {
           child: Column(
             children: [
               _buildImagePreview(),
-              ElevatedButton(
-                onPressed: () {
-                  _pickImage(); // Call the image picker function
-                  _buildImagePreview(); // Display the selected image preview
-                },
-                child: const Text('Select Image'),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      _pickImage(); // Call the image picker function
+                      _buildImagePreview(); // Display the selected image preview
+                    },
+                    icon: const Icon(Icons.image, size: 15),
+                    label: const Text('Select Image'),
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.blue,
+                      padding: const EdgeInsets.all(8),
+                    ),
+                  ),
+                  const SizedBox(width: 15),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      _pickImageCamers(); // Call the image picker function
+                      _buildImagePreview(); // Display the selected image preview
+                    },
+                    icon: const Icon(Icons.camera_alt, size: 15),
+                    label: const Text('Open Camera'),
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.green,
+                      padding: const EdgeInsets.all(8),
+                    ),
+                  ),
+                ],
               ),
               SizedBox(
                 height: 10,
@@ -382,47 +440,9 @@ class _EditStudentFormState extends State<EditStudentForm> {
                       studentPhoneNumber!,
                       selectedImageFile,
                     );
-                    Navigator.pop(context);
                   }
                 },
                 child: const Text('Update Student'),
-              ),
-              ElevatedButton(
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
-                ),
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: Text('Delete Student'),
-                        content: Text(
-                            'Are you sure you want to delete this student?'),
-                        actions: <Widget>[
-                          TextButton(
-                            child: Text('Cancel'),
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                          ),
-                          TextButton(
-                            child: Text('Delete'),
-                            onPressed: () {
-                              deleteStudentFromFirestore(widget.studentId);
-                              Navigator.of(context).pop();
-                              Navigator.of(context).pop();
-                            },
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                },
-                child: Text(
-                  'Delete Student',
-                  style: TextStyle(color: Colors.white),
-                ),
               ),
             ],
           ),

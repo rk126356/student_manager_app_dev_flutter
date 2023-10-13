@@ -71,6 +71,13 @@ class _SearchScreenState extends State<SearchScreen> {
                       '${studentDoc['studentBatch']} | Fee: ₹${studentDoc['chargePerMonth']}',
                   onTap: () {
                     // Handle onTap action for each student
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => InsideStudentScreen(
+                            studentId: studentDoc['studentId']),
+                      ),
+                    );
                   },
                   onPaymentsTap: () {
                     // Handle "Payments" button tap

@@ -258,7 +258,19 @@ class _ReportsScreenState extends State<ReportsScreen> {
                           elevation: 4,
                           margin: const EdgeInsets.all(8),
                           child: ListTile(
-                            leading: Icon(icon, color: Colors.white),
+                            leading: Container(
+                              width: 60,
+                              height: 60,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                                image: DecorationImage(
+                                  fit: BoxFit.cover,
+                                  image: NetworkImage(
+                                      paymentData['studentImageUrl']),
+                                ),
+                              ),
+                            ),
                             title: Text(
                               '$studentName - Batch: $studentBatch',
                               style: titleTextStyle,

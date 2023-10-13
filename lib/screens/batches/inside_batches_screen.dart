@@ -69,67 +69,81 @@ class _InsideBatchesScreenState extends State<InsideBatchesScreen> {
               final chargePerMonth = studentData['chargePerMonth'] ?? 0.0;
               final studentId = studentData['studentId'];
 
-              return Card(
-                elevation: 4,
-                margin: const EdgeInsets.all(8),
-                child: ListTile(
-                  title: Text(
-                    studentName,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+              return InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          InsideStudentScreen(studentId: studentId),
                     ),
-                  ),
-                  subtitle: Text(
-                    'Batch: ${widget.batchName} | Fee: $chargePerMonth',
-                    style: const TextStyle(
-                      fontSize: 14,
+                  );
+                },
+                child: Card(
+                  elevation: 4,
+                  margin: const EdgeInsets.all(8),
+                  child: ListTile(
+                    leading: Container(
+                      width: 60,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        image: DecorationImage(
+                          fit: BoxFit.cover,
+                          image: NetworkImage(studentData['studentImageURL']),
+                        ),
+                      ),
                     ),
-                  ),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            InsideStudentScreen(studentId: studentId),
+                    title: Text(
+                      studentName,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
                       ),
-                    );
-                  },
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      ElevatedButton(
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(
-                            Colors.red,
-                          ),
+                    ),
+                    subtitle: Text(
+                      'Batch: ${widget.batchName} | Fee: $chargePerMonth',
+                      style: const TextStyle(
+                        fontSize: 14,
+                      ),
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              InsideStudentScreen(studentId: studentId),
                         ),
-                        onPressed: () {
-                          showRemoveDialog(studentId);
-                        },
-                        child: const Text("Remove"),
-                      ),
-                      const SizedBox(
-                        width: 5,
-                      ),
-                      ElevatedButton(
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(
-                            Colors.blue,
-                          ),
+                      );
+                    },
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.delete, color: Colors.red),
+                          onPressed: () {
+                            showRemoveDialog(studentId);
+                          },
                         ),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  InsideStudentScreen(studentId: studentId),
-                            ),
-                          );
-                        },
-                        child: const Text("Edit"),
-                      ),
-                    ],
+                        const SizedBox(
+                          width: 5,
+                        ),
+                        IconButton(
+                          icon:
+                              Icon(Icons.arrow_forward_ios, color: Colors.blue),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    InsideStudentScreen(studentId: studentId),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               );

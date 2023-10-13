@@ -10,7 +10,6 @@ import 'package:provider/provider.dart';
 import 'package:student_manager_app_dev_flutter/providers/user_provider.dart';
 import 'package:uuid/uuid.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:http/http.dart' as http;
 
 class CreateStudentScreen extends StatelessWidget {
   @override
@@ -50,6 +49,7 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
   File? selectedImageFile;
   String? studentPhoneNumber;
   String selectedCountryCode = '+91';
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -69,6 +69,9 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
     String studentPhoneNumber,
     File? studentImage,
   ) async {
+    setState(() {
+      isLoading = true;
+    });
     final CollectionReference usersCollection =
         FirebaseFirestore.instance.collection('users');
     DocumentReference userDocument = usersCollection.doc(uid);
@@ -84,12 +87,14 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
     final storageReference =
         FirebaseStorage.instance.ref().child('student_images/$studentId.jpg');
 
+    String url = '';
+
     // Upload the image to Firebase Storage
     if (studentImage != null) {
       await storageReference.putFile(studentImage);
+      url = await storageReference.getDownloadURL();
     }
 
-    String url = await storageReference.getDownloadURL();
     Uri originalUri = Uri.parse(url);
 
 // Create a new URI with the scheme, host, and the modified last segment
@@ -121,12 +126,29 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
     });
 
     print('Student data added to Firestore with ID: $studentId');
+
+    setState(() {
+      isLoading = false;
+    });
+    Navigator.pop(context);
   }
 
   Future<void> _pickImage() async {
     final ImagePicker _picker = ImagePicker();
     final XFile? pickedImage =
-        await _picker.pickImage(source: ImageSource.gallery);
+        await _picker.pickImage(source: ImageSource.gallery, imageQuality: 10);
+
+    if (pickedImage != null) {
+      setState(() {
+        selectedImageFile = File(pickedImage.path);
+      });
+    }
+  }
+
+  Future<void> _pickImageCamers() async {
+    final ImagePicker _picker = ImagePicker();
+    final XFile? pickedImage =
+        await _picker.pickImage(source: ImageSource.camera, imageQuality: 10);
 
     if (pickedImage != null) {
       setState(() {
@@ -138,38 +160,26 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
   Widget _buildImagePreview() {
     print(selectedImageFile);
     if (selectedImageFile != null) {
-      return InkWell(
-        onTap: () {
-          _pickImage(); // Call the image picker function
-          _buildImagePreview(); // Display the selected image preview
-        },
-        child: Container(
-          width: 150,
-          height: 150,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            image: DecorationImage(
-              fit: BoxFit.cover,
-              image: FileImage(selectedImageFile!),
-            ),
+      return Container(
+        width: 150,
+        height: 150,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          image: DecorationImage(
+            fit: BoxFit.cover,
+            image: FileImage(selectedImageFile!),
           ),
         ),
       );
     } else {
-      return InkWell(
-        onTap: () {
-          _pickImage(); // Call the image picker function
-          _buildImagePreview(); // Display the selected image preview
-        },
-        child: Container(
-          width: 150,
-          height: 150,
-          decoration: const BoxDecoration(
-            shape: BoxShape.circle,
-            image: DecorationImage(
-              fit: BoxFit.cover,
-              image: AssetImage('assets/images/user.png'),
-            ),
+      return Container(
+        width: 150,
+        height: 150,
+        decoration: const BoxDecoration(
+          shape: BoxShape.circle,
+          image: DecorationImage(
+            fit: BoxFit.cover,
+            image: AssetImage('assets/images/user.png'),
           ),
         ),
       );
@@ -180,17 +190,48 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
   Widget build(BuildContext context) {
     var user = Provider.of<UserProvider>(context, listen: false).userData;
 
+    if (isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
     return Form(
       key: _formKey,
       child: Column(
         children: [
           _buildImagePreview(),
-          ElevatedButton(
-            onPressed: () {
-              _pickImage(); // Call the image picker function
-              _buildImagePreview(); // Display the selected image preview
-            },
-            child: const Text('Select Image'),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton.icon(
+                onPressed: () {
+                  _pickImage(); // Call the image picker function
+                  _buildImagePreview(); // Display the selected image preview
+                },
+                icon: const Icon(Icons.image, size: 15),
+                label: const Text('Select Image'),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.blue,
+                  padding: const EdgeInsets.all(8),
+                ),
+              ),
+              const SizedBox(width: 15),
+              ElevatedButton.icon(
+                onPressed: () {
+                  _pickImageCamers(); // Call the image picker function
+                  _buildImagePreview(); // Display the selected image preview
+                },
+                icon: const Icon(Icons.camera_alt, size: 15),
+                label: const Text('Open Camera'),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.green,
+                  padding: const EdgeInsets.all(8),
+                ),
+              ),
+            ],
           ),
           TextFormField(
             decoration: const InputDecoration(
@@ -293,7 +334,6 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
                   studentPhoneNumber!,
                   selectedImageFile,
                 );
-                Navigator.pop(context);
               }
             },
             child: const Text('Create Student'),

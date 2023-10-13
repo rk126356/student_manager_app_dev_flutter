@@ -16,6 +16,7 @@ class _BatchesScreenState extends State<BatchesScreen> {
   List<String> batchNames = [];
   Map<String, int> batchCounts = {};
   Map<String, double> batchTotalCharge = {};
+  TextEditingController newBatchNameController = TextEditingController();
 
   @override
   void initState() {
@@ -65,6 +66,60 @@ class _BatchesScreenState extends State<BatchesScreen> {
     setState(() {});
   }
 
+  void editBatchName(String batchName, String newBatchName) async {
+    // Implement your logic to change the studentBatch name here
+    // Example: You can update the 'studentBatch' field in Firestore for all students in the batch.
+    // You should run a batch update to update multiple documents at once.
+    // Replace 'students' with your actual Firestore collection name.
+    var user = Provider.of<UserProvider>(context, listen: false).userData;
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid!)
+        .collection('students')
+        .where('studentBatch', isEqualTo: batchName)
+        .get()
+        .then((querySnapshot) {
+      querySnapshot.docs.forEach((doc) {
+        doc.reference.update({'studentBatch': newBatchName});
+      });
+    });
+    Navigator.pushReplacementNamed(context, '/batches');
+  }
+
+  // Function to show the batch name edit dialog
+  void showEditBatchNameDialog(String batchName) {
+    newBatchNameController.text =
+        batchName; // Initialize the input with the current batch name
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Edit Batch Name'),
+          content: TextField(
+            controller: newBatchNameController,
+            decoration: InputDecoration(labelText: 'New Batch Name'),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Save'),
+              onPressed: () {
+                String newBatchName = newBatchNameController.text;
+                editBatchName(batchName, newBatchName);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -111,7 +166,18 @@ class _BatchesScreenState extends State<BatchesScreen> {
                     fontSize: 14,
                   ),
                 ),
-                trailing: const Icon(Icons.arrow_right, color: Colors.black),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.edit, color: Colors.blue), // Edit icon
+                      onPressed: () {
+                        showEditBatchNameDialog(batchName);
+                      },
+                    ),
+                    const Icon(Icons.arrow_right, color: Colors.blue),
+                  ],
+                ),
                 onTap: () {
                   // Navigate to InsideBatchesScreen and pass batchName as a parameter
                   Navigator.push(
