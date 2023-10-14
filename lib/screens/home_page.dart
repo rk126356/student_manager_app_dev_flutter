@@ -1,3 +1,4 @@
+import 'package:currency_picker/currency_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:student_manager_app_dev_flutter/components/NavBar.dart';
@@ -30,6 +31,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     var user = Provider.of<UserProvider>(context, listen: false).userData;
+
+// Call the delayedCode function somewhere in your code to initiate the 5-second delay.
 
     if (!_billGenerated) {
       // BillGenerator.generateBills(user.uid!);
@@ -191,7 +194,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               colors: _selectedTabIndex == 0
                                   ? Colors.blue
                                   : Colors.grey,
-                              icon: Icons.currency_rupee,
+                              icon: Icons.upcoming,
                             ),
                             const SizedBox(width: 10),
                             TabButton(
@@ -204,7 +207,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               colors: _selectedTabIndex == 1
                                   ? Colors.blue
                                   : Colors.grey,
-                              icon: Icons.currency_rupee,
+                              icon: Icons.done,
                             ),
                             const SizedBox(width: 10),
                             TabButton(
@@ -217,7 +220,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               colors: _selectedTabIndex == 2
                                   ? Colors.blue
                                   : Colors.grey,
-                              icon: Icons.currency_rupee,
+                              icon: Icons.dangerous,
                             ),
                             const SizedBox(width: 10),
                             TabButton(

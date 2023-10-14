@@ -29,6 +29,8 @@ class StudentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var currency = Provider.of<UserProvider>(context).currency;
+
     return Card(
       elevation: 4.0,
       shape: RoundedRectangleBorder(
@@ -193,7 +195,7 @@ class StudentCard extends StatelessWidget {
               ),
             ),
             Text(
-              '₹$chargePerMonth',
+              '$currency$chargePerMonth',
               style: const TextStyle(
                 fontSize: 18.0,
                 color: Colors.blue,

@@ -21,6 +21,7 @@ class _StudentBillsScreenState extends State<StudentBillsScreen> {
   @override
   Widget build(BuildContext context) {
     var user = Provider.of<UserProvider>(context, listen: false).userData;
+    var currency = Provider.of<UserProvider>(context).currency;
     return Scaffold(
       appBar: AppBar(
         title: Text("${widget.studentName} Bills"),
@@ -80,7 +81,7 @@ class _StudentBillsScreenState extends State<StudentBillsScreen> {
                 child: ListTile(
                   leading: Icon(icon, color: Colors.white),
                   title: Text(
-                    'Amount: ₹$billAmount',
+                    'Amount: $currency$billAmount',
                     style: titleTextStyle,
                   ),
                   subtitle: Text(

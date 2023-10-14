@@ -32,6 +32,8 @@ class _PaidPaymentsTabState extends State<PaidPaymentsTab> {
     final formattedSelectedEndDate =
         DateFormat('yyyy-MM-dd').parse(selectedEndDate.toString());
 
+    var currency = Provider.of<UserProvider>(context).currency;
+
     return Column(
       children: [
         // Date range filter
@@ -171,15 +173,16 @@ class _PaidPaymentsTabState extends State<PaidPaymentsTab> {
                           ),
                         ),
                         placeholder: (context, url) =>
-                            CircularProgressIndicator(),
-                        errorWidget: (context, url, error) => Icon(Icons.error),
+                            const CircularProgressIndicator(),
+                        errorWidget: (context, url, error) =>
+                            const Icon(Icons.error),
                       ),
                       title: Text(
                         '$studentName - $studentBatch',
                         style: titleTextStyle,
                       ),
                       subtitle: Text(
-                        'Fee: ₹$chargePerMonth | Bill Date: ${DateFormat('MMM dd, yyyy').format(formattedDate)}',
+                        'Fee: $currency$chargePerMonth | Bill Date: ${DateFormat('MMM dd, yyyy').format(formattedDate)}',
                         style: subtitleTextStyle,
                       ),
                       trailing:

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:student_manager_app_dev_flutter/providers/user_provider.dart';
 import 'package:student_manager_app_dev_flutter/utils/send_bill_whatsapp.dart';
 import 'package:student_manager_app_dev_flutter/utils/send_whatsapp_reminder.dart';
 
@@ -167,6 +169,7 @@ class _EditPaymentsScreenState extends State<EditPaymentsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var currency = Provider.of<UserProvider>(context).currency;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit Payment Status'),
@@ -179,6 +182,14 @@ class _EditPaymentsScreenState extends State<EditPaymentsScreen> {
               "Student Name: ${widget.studentName}",
               style: const TextStyle(
                 fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text(
+              "Amount: $currency$chargePerMonth",
+              style: const TextStyle(
+                color: Colors.blue,
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
             ),

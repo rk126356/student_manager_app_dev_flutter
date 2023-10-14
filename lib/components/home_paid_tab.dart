@@ -15,6 +15,8 @@ class HomePaidTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var user = Provider.of<UserProvider>(context, listen: false).userData;
+
+    var data = Provider.of<UserProvider>(context);
     CollectionReference paymentsCollection = FirebaseFirestore.instance
         .collection('users')
         .doc(user.uid)
@@ -96,7 +98,7 @@ class HomePaidTab extends StatelessWidget {
                 ),
               ),
               subtitle: Text(
-                'Fee: $chargePerMonth | Bill Date: $formattedDate',
+                'Fee: ${data.currency}$chargePerMonth | Bill Date: $formattedDate',
                 style: const TextStyle(
                   fontSize: 14,
                   color: Colors.white,

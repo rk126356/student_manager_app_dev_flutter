@@ -2,11 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:student_manager_app_dev_flutter/providers/user_provider.dart';
-import 'package:student_manager_app_dev_flutter/screens/students/edit_student_screen.dart';
 import 'package:student_manager_app_dev_flutter/screens/students/inside_students_screen.dart';
 import 'package:student_manager_app_dev_flutter/screens/students/student_bills_screen.dart';
-import 'package:student_manager_app_dev_flutter/widgets/home_student_list_tile.dart';
-import 'package:student_manager_app_dev_flutter/widgets/my_list_tile_widget.dart';
 import 'package:student_manager_app_dev_flutter/widgets/students_list_widget.dart';
 
 class HomeStudentsTab extends StatelessWidget {
@@ -15,6 +12,7 @@ class HomeStudentsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var user = Provider.of<UserProvider>(context, listen: false).userData;
+    var currency = Provider.of<UserProvider>(context).currency;
 
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
@@ -28,7 +26,7 @@ class HomeStudentsTab extends StatelessWidget {
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator(); // Show loading indicator while data is being fetched
+          return const CircularProgressIndicator(); // Show loading indicator while data is being fetched
         }
         if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
@@ -57,7 +55,7 @@ class HomeStudentsTab extends StatelessWidget {
                     title: studentDoc['studentName'] ?? '',
                     imageUrl: studentDoc['studentImageURL'] ?? '',
                     subtitle:
-                        '${studentDoc['studentBatch']} | Fee: ₹${studentDoc['chargePerMonth']}',
+                        '${studentDoc['studentBatch']} | Fee: $currency${studentDoc['chargePerMonth']}',
                     onTap: () {
                       // Handle onTap action for each student
                       Navigator.push(

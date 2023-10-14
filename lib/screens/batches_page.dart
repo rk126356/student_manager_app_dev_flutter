@@ -160,6 +160,8 @@ class _BatchesScreenState extends State<BatchesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var currency = Provider.of<UserProvider>(context).currency;
+
     if (isLoading) {
       return const Center(
         child: CircularProgressIndicator(
@@ -205,7 +207,7 @@ class _BatchesScreenState extends State<BatchesScreen> {
                   ),
                 ),
                 subtitle: Text(
-                  'Total Students: ${studentCount ?? 0} | Value: ₹${totalCharge ?? 0.0}',
+                  'Total Students: ${studentCount ?? 0} | Value: $currency${totalCharge ?? 0.0}',
                   style: const TextStyle(
                     fontSize: 14,
                   ),

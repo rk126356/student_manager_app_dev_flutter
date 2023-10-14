@@ -196,6 +196,8 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
       );
     }
 
+    var currency = Provider.of<UserProvider>(context).currency;
+
     return Form(
       key: _formKey,
       child: Column(
@@ -269,10 +271,9 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
           ),
           const SizedBox(height: 10),
           TextFormField(
-            decoration: const InputDecoration(
-              labelText: 'Fee Per Month',
-              border: OutlineInputBorder(),
-              prefixIcon: Icon(Icons.currency_rupee),
+            decoration: InputDecoration(
+              labelText: '$currency Charge Per Month',
+              border: const OutlineInputBorder(),
             ),
             keyboardType: TextInputType.number,
             inputFormatters: <TextInputFormatter>[

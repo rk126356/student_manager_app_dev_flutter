@@ -68,6 +68,7 @@ class _HomeBatchesTabState extends State<HomeBatchesTab> {
 
   @override
   Widget build(BuildContext context) {
+    var currency = Provider.of<UserProvider>(context).currency;
     if (batchCounts.isEmpty) {
       return const Center(
           child: Column(
@@ -90,7 +91,7 @@ class _HomeBatchesTabState extends State<HomeBatchesTab> {
               MyListTile(
                 title: batchName,
                 subtitle:
-                    'Total Students: ${batchCounts[batchName] ?? 0} | Batch Value: ₹${batchTotalCharge[batchName] ?? 0.0}',
+                    'Total Students: ${batchCounts[batchName] ?? 0} | Batch Value: $currency${batchTotalCharge[batchName] ?? 0.0}',
                 onTap: () {
                   Navigator.push(
                     context,

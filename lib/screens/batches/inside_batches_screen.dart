@@ -26,6 +26,7 @@ class _InsideBatchesScreenState extends State<InsideBatchesScreen> {
   @override
   Widget build(BuildContext context) {
     user = Provider.of<UserProvider>(context, listen: false).userData;
+    var currency = Provider.of<UserProvider>(context).currency;
 
     return Scaffold(
       appBar: AppBar(
@@ -112,7 +113,7 @@ class _InsideBatchesScreenState extends State<InsideBatchesScreen> {
                       ),
                     ),
                     subtitle: Text(
-                      'Batch: ${widget.batchName} | Fee: $chargePerMonth',
+                      '${widget.batchName} | Fee: $currency$chargePerMonth',
                       style: const TextStyle(
                         fontSize: 14,
                       ),
@@ -130,7 +131,8 @@ class _InsideBatchesScreenState extends State<InsideBatchesScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
+                          icon: const Icon(Icons.remove_circle,
+                              color: Colors.red),
                           onPressed: () {
                             showRemoveDialog(studentId);
                           },

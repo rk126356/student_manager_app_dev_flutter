@@ -20,6 +20,7 @@ class _UnpaidPaymentsTabState extends State<UnpaidPaymentsTab> {
   @override
   Widget build(BuildContext context) {
     var user = Provider.of<UserProvider>(context, listen: false).userData;
+    var currency = Provider.of<UserProvider>(context).currency;
 
     CollectionReference paymentsCollection = FirebaseFirestore.instance
         .collection('users')
@@ -137,7 +138,7 @@ class _UnpaidPaymentsTabState extends State<UnpaidPaymentsTab> {
                   }
 
                   final cardColor = isPaid ? Colors.green : Colors.red;
-                  final icon = isPaid ? Icons.check_circle : Icons.cancel;
+
                   const titleTextStyle = TextStyle(
                     fontSize: 16.0,
                     fontWeight: FontWeight.bold,
@@ -179,7 +180,7 @@ class _UnpaidPaymentsTabState extends State<UnpaidPaymentsTab> {
                         style: titleTextStyle,
                       ),
                       subtitle: Text(
-                        'Fee: ₹$chargePerMonth | Bill Date: ${DateFormat('MMM dd, yyyy').format(formattedDate)}',
+                        'Fee: $currency$chargePerMonth | Bill Date: ${DateFormat('MMM dd, yyyy').format(formattedDate)}',
                         style: subtitleTextStyle,
                       ),
                       trailing:

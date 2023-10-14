@@ -19,6 +19,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
   @override
   Widget build(BuildContext context) {
     var user = Provider.of<UserProvider>(context, listen: false).userData;
+    var currency = Provider.of<UserProvider>(context).currency;
     CollectionReference paymentsCollection = FirebaseFirestore.instance
         .collection('users')
         .doc(user.uid)
@@ -178,13 +179,13 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   Expanded(
                     child: DashboardBox(
                       title: 'Paid',
-                      value: '₹${totalPaidAmount.toStringAsFixed(2)}',
+                      value: '$currency${totalPaidAmount.toStringAsFixed(2)}',
                     ),
                   ),
                   Expanded(
                     child: DashboardBox(
                       title: 'Unpaid',
-                      value: '₹${totalUnpaidAmount.toStringAsFixed(2)}',
+                      value: '$currency${totalUnpaidAmount.toStringAsFixed(2)}',
                     ),
                   ),
                 ],
@@ -285,7 +286,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                               style: titleTextStyle,
                             ),
                             subtitle: Text(
-                              'Fee: ₹$chargePerMonth | Bill Date: ${DateFormat('MMM dd, yyyy').format(formattedDate)}',
+                              'Fee: $currency$chargePerMonth | Bill Date: ${DateFormat('MMM dd, yyyy').format(formattedDate)}',
                               style: subtitleTextStyle,
                             ),
                             trailing: const Icon(Icons.arrow_right,

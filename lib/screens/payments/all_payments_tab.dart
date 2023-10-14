@@ -31,6 +31,7 @@ class _AllPaymentsTabState extends State<AllPaymentsTab> {
 
     final formattedSelectedEndDate =
         DateFormat('yyyy-MM-dd').parse(selectedEndDate.toString());
+    var currency = Provider.of<UserProvider>(context).currency;
 
     return Column(
       children: [
@@ -178,7 +179,7 @@ class _AllPaymentsTabState extends State<AllPaymentsTab> {
                         style: titleTextStyle,
                       ),
                       subtitle: Text(
-                        'Fee: ₹$chargePerMonth | Bill Date: ${DateFormat('MMM dd, yyyy').format(formattedDate)}',
+                        'Fee: $currency$chargePerMonth | Bill Date: ${DateFormat('MMM dd, yyyy').format(formattedDate)}',
                         style: subtitleTextStyle,
                       ),
                       trailing:

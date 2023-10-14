@@ -38,6 +38,8 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var currency = Provider.of<UserProvider>(context).currency;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Search Students'),
@@ -68,7 +70,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   imageUrl: studentDoc['studentImageURL'] ?? '',
                   title: studentDoc['studentName'] ?? '',
                   subtitle:
-                      '${studentDoc['studentBatch']} | Fee: ₹${studentDoc['chargePerMonth']}',
+                      '${studentDoc['studentBatch']} | Fee: $currency${studentDoc['chargePerMonth']}',
                   onTap: () {
                     // Handle onTap action for each student
                     Navigator.push(

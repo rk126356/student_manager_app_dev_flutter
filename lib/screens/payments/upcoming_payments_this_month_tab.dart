@@ -13,6 +13,7 @@ class UpcomingPaymentsThisMonthTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var user = Provider.of<UserProvider>(context, listen: false).userData;
+    var currency = Provider.of<UserProvider>(context).currency;
     CollectionReference paymentsCollection = FirebaseFirestore.instance
         .collection('users')
         .doc(user.uid)
@@ -101,7 +102,7 @@ class UpcomingPaymentsThisMonthTab extends StatelessWidget {
                     ),
                   ),
                   subtitle: Text(
-                    'Fee: ₹$chargePerMonth | $formattedNextBillDate',
+                    'Fee: $currency$chargePerMonth | $formattedNextBillDate',
                     style: const TextStyle(
                       fontSize: 14, // Adjust the font size as needed
                       // You can customize other text styles here, e.g., color

@@ -14,6 +14,7 @@ class HomeUnpaidTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var user = Provider.of<UserProvider>(context, listen: false).userData;
+    var currency = Provider.of<UserProvider>(context).currency;
     CollectionReference paymentsCollection = FirebaseFirestore.instance
         .collection('users')
         .doc(user.uid)
@@ -95,7 +96,7 @@ class HomeUnpaidTab extends StatelessWidget {
                 ),
               ),
               subtitle: Text(
-                'Fee: $chargePerMonth | Bill Date: $formattedDate',
+                'Fee: $currency$chargePerMonth | Bill Date: $formattedDate',
                 style: const TextStyle(
                   fontSize: 14,
                   color: Colors.white,

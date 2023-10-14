@@ -84,6 +84,8 @@ class _SearchPaymentsScreenState extends State<SearchPaymentsScreen> {
 
                 final formattedDate = DateFormat('yyyy-MM-dd').parse(billDate);
 
+                var currency = Provider.of<UserProvider>(context).currency;
+
                 return Card(
                   color: cardColor,
                   elevation: 4,
@@ -115,7 +117,7 @@ class _SearchPaymentsScreenState extends State<SearchPaymentsScreen> {
                       style: titleTextStyle,
                     ),
                     subtitle: Text(
-                      'Fee: ₹$chargePerMonth | Bill Date: ${DateFormat('MMM dd, yyyy').format(formattedDate)}',
+                      'Fee: $currency$chargePerMonth | Bill Date: ${DateFormat('MMM dd, yyyy').format(formattedDate)}',
                       style: subtitleTextStyle,
                     ),
                     trailing:

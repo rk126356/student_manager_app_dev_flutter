@@ -35,6 +35,7 @@ class _StudentsScreenState extends State<StudentsScreen>
   @override
   Widget build(BuildContext context) {
     var user = Provider.of<UserProvider>(context, listen: false).userData;
+    var currency = Provider.of<UserProvider>(context).currency;
 
     return Scaffold(
       floatingActionButton: ElevatedButton(
@@ -123,7 +124,7 @@ class _StudentsScreenState extends State<StudentsScreen>
                               imageUrl: studentDoc['studentImageURL'] ?? '',
                               title: studentDoc['studentName'] ?? '',
                               subtitle:
-                                  '${studentDoc['studentBatch']} | Fee: ₹${studentDoc['chargePerMonth']}',
+                                  '${studentDoc['studentBatch']} | Fee: $currency${studentDoc['chargePerMonth']}',
                               onTap: () {
                                 // Handle onTap action for each student
                                 Navigator.push(
@@ -204,7 +205,7 @@ class _StudentsScreenState extends State<StudentsScreen>
                               title: studentDoc['studentName'] ?? '',
                               imageUrl: studentDoc['studentImageURL'] ?? '',
                               subtitle:
-                                  '${studentDoc['studentBatch']} | Fee: ₹${studentDoc['chargePerMonth']}',
+                                  '${studentDoc['studentBatch']} | Fee: $currency${studentDoc['chargePerMonth']}',
                               onTap: () {
                                 // Handle onTap action for each student
                                 Navigator.push(
@@ -285,7 +286,7 @@ class _StudentsScreenState extends State<StudentsScreen>
                               title: studentDoc['studentName'] ?? '',
                               imageUrl: studentDoc['studentImageURL'] ?? '',
                               subtitle:
-                                  '${studentDoc['studentBatch']} | Fee: ₹${studentDoc['chargePerMonth']}',
+                                  '${studentDoc['studentBatch']} | Fee: $currency${studentDoc['chargePerMonth']}',
                               onTap: () {
                                 // Handle onTap action for each student
                                 Navigator.push(

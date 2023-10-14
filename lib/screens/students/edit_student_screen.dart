@@ -273,6 +273,8 @@ class _EditStudentFormState extends State<EditStudentForm> {
           );
         }
 
+        var currencyIo = Provider.of<UserProvider>(context).currency;
+
         return Form(
           key: _formKey,
           child: Column(
@@ -354,10 +356,9 @@ class _EditStudentFormState extends State<EditStudentForm> {
                       initialValue: chargePerMonth != null
                           ? chargePerMonth.toString()
                           : '',
-                      decoration: const InputDecoration(
-                        labelText: 'Charge Per Month',
+                      decoration: InputDecoration(
+                        labelText: '$currencyIo Charge Per Month',
                         border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.currency_rupee),
                       ),
                       keyboardType: TextInputType.number,
                       inputFormatters: <TextInputFormatter>[

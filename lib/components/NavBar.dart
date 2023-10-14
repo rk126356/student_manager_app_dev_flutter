@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -21,15 +22,21 @@ class NavBar extends StatelessWidget {
           UserAccountsDrawerHeader(
             accountName: Text(user.name!),
             accountEmail: Text(user.email!),
-            currentAccountPicture: CircleAvatar(
-              child: ClipOval(
-                child: Image.network(
-                  user.avatarUrl!,
-                  fit: BoxFit.cover,
-                  width: 90,
-                  height: 90,
+            currentAccountPicture: CachedNetworkImage(
+              height: 90,
+              width: 90,
+              imageUrl: user.avatarUrl!,
+              imageBuilder: (context, imageProvider) => Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle, // Makes it a circle (Avatar-like)
+                  image: DecorationImage(
+                    image: imageProvider,
+                    fit: BoxFit.cover, // You can use other BoxFit values
+                  ),
                 ),
               ),
+              placeholder: (context, url) => const CircularProgressIndicator(),
+              errorWidget: (context, url, error) => const Icon(Icons.error),
             ),
             decoration: const BoxDecoration(
               color: Colors.blue,
@@ -98,8 +105,6 @@ class NavBar extends StatelessWidget {
             title: const Text('Logout'),
             leading: const Icon(Icons.logout),
             onTap: () async {
-              WidgetsFlutterBinding.ensureInitialized();
-              await Firebase.initializeApp();
               await GoogleSignIn().signOut();
               FirebaseAuth.instance.signOut();
               Navigator.pushNamedAndRemoveUntil(

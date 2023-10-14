@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:student_manager_app_dev_flutter/providers/user_provider.dart';
 import 'package:student_manager_app_dev_flutter/widgets/Dashboard_board_widget.dart';
@@ -11,6 +10,8 @@ class AllTime extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var user = Provider.of<UserProvider>(context, listen: false).userData;
+    var currency = Provider.of<UserProvider>(context).currency;
+
     CollectionReference paymentsCollection = FirebaseFirestore.instance
         .collection('users')
         .doc(user.uid)
@@ -85,13 +86,13 @@ class AllTime extends StatelessWidget {
                 Expanded(
                   child: DashboardBox(
                     title: 'Paid',
-                    value: '₹${totalPaidAmount.toStringAsFixed(2)}',
+                    value: '$currency${totalPaidAmount.toStringAsFixed(2)}',
                   ),
                 ),
                 Expanded(
                   child: DashboardBox(
                     title: 'Unpaid',
-                    value: '₹${totalUnpaidAmount.toStringAsFixed(2)}',
+                    value: '$currency${totalUnpaidAmount.toStringAsFixed(2)}',
                   ),
                 ),
               ],

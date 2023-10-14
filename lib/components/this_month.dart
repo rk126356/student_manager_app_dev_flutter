@@ -11,6 +11,7 @@ class ThisMonth extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var user = Provider.of<UserProvider>(context, listen: false).userData;
+    var currency = Provider.of<UserProvider>(context).currency;
     CollectionReference paymentsCollection = FirebaseFirestore.instance
         .collection('users')
         .doc(user.uid)
@@ -95,13 +96,13 @@ class ThisMonth extends StatelessWidget {
                 Expanded(
                   child: DashboardBox(
                     title: 'Paid',
-                    value: '₹${totalPaidAmount.toStringAsFixed(2)}',
+                    value: '$currency${totalPaidAmount.toStringAsFixed(2)}',
                   ),
                 ),
                 Expanded(
                   child: DashboardBox(
                     title: 'Unpaid',
-                    value: '₹${totalUnpaidAmount.toStringAsFixed(2)}',
+                    value: '$currency${totalUnpaidAmount.toStringAsFixed(2)}',
                   ),
                 ),
               ],

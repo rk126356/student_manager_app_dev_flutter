@@ -28,10 +28,8 @@ class StudentListTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(15),
         ),
         child: ListTile(
-          contentPadding: EdgeInsets.all(15),
+          contentPadding: const EdgeInsets.all(15),
           leading: CachedNetworkImage(
-            width: 60,
-            height: 60,
             imageUrl: imageUrl,
             imageBuilder: (context, imageProvider) => Container(
               width: 60,
@@ -44,19 +42,19 @@ class StudentListTile extends StatelessWidget {
                 ),
               ),
             ),
-            placeholder: (context, url) => CircularProgressIndicator(),
-            errorWidget: (context, url, error) => Icon(Icons.error),
+            placeholder: (context, url) => const CircularProgressIndicator(),
+            errorWidget: (context, url, error) => const Icon(Icons.error),
           ),
           title: Text(
             title,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
           ),
           subtitle: Text(
             subtitle,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 16,
               color: Colors.grey,
             ),
@@ -66,15 +64,15 @@ class StudentListTile extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               IconButton(
-                icon: Icon(
+                icon: const Icon(
                   Icons.payment,
                   color: Colors.blue, // Customize icon color
                 ),
                 onPressed: onPaymentsTap,
               ),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               IconButton(
-                icon: Icon(
+                icon: const Icon(
                   Icons.info,
                   color: Colors.green, // Customize icon color
                 ),

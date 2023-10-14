@@ -13,6 +13,7 @@ class UpcomingPaymentsSevenDaysTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var user = Provider.of<UserProvider>(context, listen: false).userData;
+    var currency = Provider.of<UserProvider>(context).currency;
     CollectionReference paymentsCollection = FirebaseFirestore.instance
         .collection('users')
         .doc(user.uid)
@@ -83,8 +84,10 @@ class UpcomingPaymentsSevenDaysTab extends StatelessWidget {
                         ),
                       ),
                     ),
-                    placeholder: (context, url) => CircularProgressIndicator(),
-                    errorWidget: (context, url, error) => Icon(Icons.error),
+                    placeholder: (context, url) =>
+                        const CircularProgressIndicator(),
+                    errorWidget: (context, url, error) =>
+                        const Icon(Icons.error),
                   ),
                   title: Text(
                     '$studentName - Batch: $studentBatch',
@@ -94,7 +97,7 @@ class UpcomingPaymentsSevenDaysTab extends StatelessWidget {
                     ),
                   ),
                   subtitle: Text(
-                    'Fee: ₹$chargePerMonth - Bill Date: $formattedNextBillDate',
+                    'Fee: $currency$chargePerMonth - Bill Date: $formattedNextBillDate',
                     style: const TextStyle(
                       fontSize: 14,
                     ),
