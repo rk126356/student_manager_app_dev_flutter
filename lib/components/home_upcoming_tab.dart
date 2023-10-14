@@ -99,8 +99,6 @@ class HomeUpcomingTab extends StatelessWidget {
               margin: const EdgeInsets.all(8), // Adjust the margin as needed
               child: ListTile(
                 leading: CachedNetworkImage(
-                  width: 60,
-                  height: 60,
                   imageUrl: imageUrl,
                   imageBuilder: (context, imageProvider) => Container(
                     width: 60,

@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:currency_picker/currency_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:student_manager_app_dev_flutter/components/NavBar.dart';
@@ -67,6 +66,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (!_billGenerated) {
       // BillGenerator.generateBills(user.uid!);
       generateBills(user.uid!);
+
       _billGenerated = true;
     }
 
@@ -223,7 +223,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               colors: _selectedTabIndex == 0
                                   ? Colors.blue
                                   : Colors.grey,
-                              icon: Icons.upcoming,
+                              icon: Icons.arrow_upward,
                             ),
                             const SizedBox(width: 10),
                             TabButton(
@@ -236,7 +236,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               colors: _selectedTabIndex == 1
                                   ? Colors.blue
                                   : Colors.grey,
-                              icon: Icons.done,
+                              icon: Icons.check_circle,
                             ),
                             const SizedBox(width: 10),
                             TabButton(
@@ -249,7 +249,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               colors: _selectedTabIndex == 2
                                   ? Colors.blue
                                   : Colors.grey,
-                              icon: Icons.dangerous,
+                              icon: Icons.cancel,
                             ),
                             const SizedBox(width: 10),
                             TabButton(

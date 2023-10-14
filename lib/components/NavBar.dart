@@ -85,7 +85,7 @@ class NavBar extends StatelessWidget {
             onTap: () => Navigator.pushNamed(context, '/payments'),
           ),
           ListTile(
-            leading: const Icon(Icons.timer),
+            leading: const Icon(Icons.av_timer),
             title: const Text('Upcoming Payments'),
             onTap: () => Navigator.pushNamed(context, '/upcoming-payments'),
           ),
