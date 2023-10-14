@@ -56,13 +56,11 @@ class MyApp extends StatelessWidget {
                       email: user.email,
                       name: user.displayName,
                       avatarUrl: user.photoURL));
-              return HomeScreen(
-                myString: FirebaseAuth.instance.currentUser!.displayName!,
-              );
+              return const HomeScreen();
             }
           }
 
-          return const HomeScreen();
+          return const LoginScreen();
         },
       ),
       routes: <String, WidgetBuilder>{

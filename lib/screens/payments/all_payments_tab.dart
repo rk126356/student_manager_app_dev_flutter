@@ -154,13 +154,12 @@ class _AllPaymentsTabState extends State<AllPaymentsTab> {
                     margin: const EdgeInsets.all(8),
                     child: ListTile(
                       leading: CachedNetworkImage(
-                        width: 60,
-                        height: 60,
                         imageUrl: paymentData['studentImageUrl'],
                         imageBuilder: (context, imageProvider) => Container(
                           width: 60,
                           height: 60,
                           decoration: BoxDecoration(
+                            color: Colors.white,
                             shape: BoxShape
                                 .circle, // Makes it a circle (Avatar-like)
                             image: DecorationImage(

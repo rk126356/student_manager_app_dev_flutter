@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -253,16 +254,21 @@ class _EditStudentFormState extends State<EditStudentForm> {
               ),
             );
           } else {
-            return Container(
-              width: 150,
-              height: 150,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                image: DecorationImage(
-                  fit: BoxFit.cover,
-                  image: NetworkImage(studentImageURL!),
+            return CachedNetworkImage(
+              imageUrl: studentImageURL!,
+              imageBuilder: (context, imageProvider) => Container(
+                width: 150,
+                height: 150,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle, // Makes it a circle (Avatar-like)
+                  image: DecorationImage(
+                    image: imageProvider,
+                    fit: BoxFit.cover, // You can use other BoxFit values
+                  ),
                 ),
               ),
+              placeholder: (context, url) => const CircularProgressIndicator(),
+              errorWidget: (context, url, error) => const Icon(Icons.error),
             );
           }
         }

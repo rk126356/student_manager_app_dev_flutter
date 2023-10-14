@@ -11,12 +11,14 @@ class OnBoarding extends StatelessWidget {
     var currency = Provider.of<UserProvider>(context);
 
     return CupertinoApp(
+      color: Colors.white,
       home: OnBoardingSlider(
         onFinish: () {
           currency.setFirstLaunch(false);
           Navigator.pushNamed(context, '/login');
         },
         centerBackground: true,
+        pageBackgroundColor: Colors.white,
         headerBackgroundColor: Colors.deepPurple,
         finishButtonText: 'Continue',
         finishButtonStyle: const FinishButtonStyle(

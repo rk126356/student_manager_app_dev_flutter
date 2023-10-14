@@ -35,14 +35,18 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     // TODO: implement initState
-    super.initState();
-
     checkIsFristLaunch();
+    super.initState();
   }
+
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
     Future<void> signInWithGoogle() async {
+      setState(() {
+        isLoading = true;
+      });
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
       final GoogleSignInAuthentication? googleAuth =
           await googleUser?.authentication;
@@ -63,145 +67,150 @@ class _LoginScreenState extends State<LoginScreen> {
             name: _user.displayName,
             avatarUrl: _user.photoURL));
 
-        if (user != null) {
-          await FirebaseFirestore.instance
-              .collection('users')
-              .doc(user.uid)
-              .set({
-            'displayName': user.displayName,
-            'email': user.email,
-            'uid': user.uid,
-            'avatarUrl': user.photoURL,
-            'currency':
-                Provider.of<UserProvider>(context, listen: false).currency,
-            'currencyName':
-                Provider.of<UserProvider>(context, listen: false).currencyName
-          });
+        await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+          'displayName': user.displayName,
+          'email': user.email,
+          'uid': user.uid,
+          'avatarUrl': user.photoURL,
+          'currency':
+              Provider.of<UserProvider>(context, listen: false).currency,
+          'currencyName':
+              Provider.of<UserProvider>(context, listen: false).currencyName
+        });
 
-          print('User data stored in Firestore');
+        print('User data stored in Firestore');
 
-          Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
-        }
+        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+
+        setState(() {
+          isLoading = false;
+        });
       } catch (error) {
         print('Error signing in with Google: $error');
+        setState(() {
+          isLoading = false;
+        });
       }
     }
 
     var currency = Provider.of<UserProvider>(context);
 
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            colors: [Colors.deepPurple, Colors.purple],
-          ),
-        ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset(
-                'assets/images/google-logo.png',
-                height: 150,
-                width: 150,
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                "Student Manager",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  colors: [Colors.deepPurple, Colors.purple],
                 ),
               ),
-              const SizedBox(height: 30),
-              Text(
-                "Currency: ${currency.currency}${currency.currencyName}",
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 5),
-              ElevatedButton(
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>(
-                    Colors.green.shade700,
-                  ),
-                ),
-                onPressed: () {
-                  showCurrencyPicker(
-                      context: context,
-                      theme: CurrencyPickerThemeData(
-                        flagSize: 25,
-                        titleTextStyle: const TextStyle(fontSize: 17),
-                        subtitleTextStyle: TextStyle(
-                            fontSize: 15, color: Theme.of(context).hintColor),
-                        bottomSheetHeight:
-                            MediaQuery.of(context).size.height / 2,
-                      ),
-                      onSelect: (Currency data) {
-                        currency.setCurrency(data.symbol);
-                        currency.setCurrencyName(data.code);
-                      });
-                },
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.change_circle),
-                    SizedBox(
-                      width: 5,
+                    Image.asset(
+                      'assets/images/google-logo.png',
+                      height: 150,
+                      width: 150,
                     ),
-                    Text(
-                      "Change Currency",
+                    const SizedBox(height: 20),
+                    const Text(
+                      "Student Manager",
+                      textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 32,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
                     ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 50),
-              ElevatedButton(
-                onPressed: () {
-                  signInWithGoogle();
-                },
-                style: ElevatedButton.styleFrom(
-                  primary: Colors.white,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Image.asset(
-                      'assets/images/google-logo.png',
-                      height: 30,
-                      width: 30,
+                    const SizedBox(height: 30),
+                    Text(
+                      "Currency: ${currency.currency}${currency.currencyName}",
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                     ),
-                    const SizedBox(width: 10),
-                    const Text(
-                      "Sign in with Google",
-                      style: TextStyle(
-                        fontSize: 22,
-                        color: Colors.black,
+                    const SizedBox(height: 5),
+                    ElevatedButton(
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(
+                          Colors.green.shade700,
+                        ),
+                      ),
+                      onPressed: () {
+                        showCurrencyPicker(
+                            context: context,
+                            theme: CurrencyPickerThemeData(
+                              flagSize: 25,
+                              titleTextStyle: const TextStyle(fontSize: 17),
+                              subtitleTextStyle: TextStyle(
+                                  fontSize: 15,
+                                  color: Theme.of(context).hintColor),
+                              bottomSheetHeight:
+                                  MediaQuery.of(context).size.height / 2,
+                            ),
+                            onSelect: (Currency data) {
+                              currency.setCurrency(data.symbol);
+                              currency.setCurrencyName(data.code);
+                            });
+                      },
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.change_circle),
+                          SizedBox(
+                            width: 5,
+                          ),
+                          Text(
+                            "Change Currency",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 50),
+                    ElevatedButton(
+                      onPressed: () {
+                        signInWithGoogle();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 10),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Image.asset(
+                            'assets/images/google-logo.png',
+                            height: 30,
+                            width: 30,
+                          ),
+                          const SizedBox(width: 10),
+                          const Text(
+                            "Sign in with Google",
+                            style: TextStyle(
+                              fontSize: 22,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
               ),
-            ],
-          ),
-        ),
-      ),
+            ),
     );
   }
 }

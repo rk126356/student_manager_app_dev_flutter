@@ -21,8 +21,6 @@ class _InsideUpcomingPaymentsScreenState
     extends State<InsideUpcomingPaymentsScreen> {
   late DateTime nextBillDate;
 
-  get studentPhoneNumber => null;
-
   @override
   void initState() {
     super.initState();
@@ -152,7 +150,7 @@ class _InsideUpcomingPaymentsScreenState
                 onPressed: () {
                   sendWhatsAppReminder(
                     studentName: studentName,
-                    studentPhoneNumber: studentPhoneNumber,
+                    studentPhoneNumber: phoneNumber,
                     formattedNextBillDate: formattedNextBillDate,
                     chargePerMonth: chargePerMonth.toString(),
                   );

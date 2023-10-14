@@ -267,6 +267,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                               imageBuilder: (context, imageProvider) =>
                                   Container(
                                 decoration: BoxDecoration(
+                                  color: Colors.white,
                                   shape: BoxShape
                                       .circle, // Makes it a circle (Avatar-like)
                                   image: DecorationImage(

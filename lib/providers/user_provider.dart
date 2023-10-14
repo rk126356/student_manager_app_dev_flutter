@@ -9,6 +9,7 @@ class UserProvider extends ChangeNotifier {
   String _currency = '₹';
   String _currencyName = 'INR';
   bool _isFirstLaunch = true;
+  bool _isNewOpen = true;
 
   UserModel get userData => _userData;
   int get noOfUPayments => _noOfPayments;
@@ -16,10 +17,15 @@ class UserProvider extends ChangeNotifier {
   String get currency => _currency;
   String get currencyName => _currencyName;
   bool get isFirstLaunch => _isFirstLaunch;
+  bool get isNewOpen => _isNewOpen;
 
   UserProvider() {
     print("Provider initialized");
     _initializeDataFromPrefs();
+  }
+
+  setIsNewOpen(bool value) {
+    _isNewOpen = value;
   }
 
   setFirstLaunch(bool data) async {

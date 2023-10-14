@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:currency_picker/currency_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -15,9 +16,7 @@ import 'package:student_manager_app_dev_flutter/utils/bill_generator.dart';
 import 'package:student_manager_app_dev_flutter/widgets/tab_button_widget.dart';
 
 class HomeScreen extends StatefulWidget {
-  final String myString; // Declare a field to hold the string
-
-  const HomeScreen({Key? key, this.myString = ""}) : super(key: key);
+  const HomeScreen({Key? key}) : super(key: key);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -28,16 +27,46 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectedTabIndex = 0;
   bool _billGenerated = false;
 
+  updateAppLaunched(user) {
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .get()
+        .then((DocumentSnapshot<Map<String, dynamic>> snapshot) {
+      if (snapshot.exists) {
+        // Check if the document exists
+        Map<String, dynamic>? data = snapshot.data();
+        if (data != null && data.containsKey('noOfTimeAppLaunched')) {
+          int noOfTimeAppLaunched = data['noOfTimeAppLaunched'];
+
+          FirebaseFirestore.instance.collection('users').doc(user.uid).update({
+            'noOfTimeAppLaunched': noOfTimeAppLaunched + 1,
+          });
+        } else {
+          print('Field noOfTimeAppLaunched not found or is null.');
+          FirebaseFirestore.instance.collection('users').doc(user.uid).update({
+            'noOfTimeAppLaunched': 1,
+          });
+        }
+      } else {
+        print('Document does not exist.');
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     var user = Provider.of<UserProvider>(context, listen: false).userData;
+    var pvdata = Provider.of<UserProvider>(context, listen: false);
 
-// Call the delayedCode function somewhere in your code to initiate the 5-second delay.
+    if (pvdata.isNewOpen) {
+      updateAppLaunched(user);
+      pvdata.setIsNewOpen(false);
+    }
 
     if (!_billGenerated) {
       // BillGenerator.generateBills(user.uid!);
       generateBills(user.uid!);
-
       _billGenerated = true;
     }
 
