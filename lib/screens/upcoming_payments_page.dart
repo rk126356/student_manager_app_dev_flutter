@@ -42,7 +42,7 @@ class _UpcomingPaymentsScreenState extends State<UpcomingPaymentsScreen>
               text: "In 30 Days",
             ),
             Tab(
-              text: "Today",
+              text: "In 1-2 Days",
             ),
             Tab(
               text: "In 7 Days",

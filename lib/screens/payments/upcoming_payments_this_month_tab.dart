@@ -93,7 +93,7 @@ class UpcomingPaymentsThisMonthTab extends StatelessWidget {
                   ),
                   title: Text(
                     studentBatch != null
-                        ? "$studentName - Batch: $studentBatch"
+                        ? "$studentName - $studentBatch"
                         : studentName,
                     style: const TextStyle(
                       fontSize: 16, // Adjust the font size as needed

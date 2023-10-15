@@ -140,7 +140,7 @@ class _EditStudentFormState extends State<EditStudentForm> {
       'joinedDate': joinedDate,
       'isActive': isActive,
       'isLeft': isLeft,
-      'studentPhoneNumber': studentPhoneNumber,
+      'studentPhoneNumber': studentPhoneNumber.trim(),
       'studentImageURL': studentImage != null
           ? await uploadStudentImage(studentImage, widget.studentId)
           : studentImageURL
@@ -186,7 +186,7 @@ class _EditStudentFormState extends State<EditStudentForm> {
   Future<void> _pickImage() async {
     final ImagePicker _picker = ImagePicker();
     final XFile? pickedImage =
-        await _picker.pickImage(source: ImageSource.gallery, imageQuality: 5);
+        await _picker.pickImage(source: ImageSource.gallery, imageQuality: 30);
 
     if (pickedImage != null) {
       setState(() {
@@ -198,7 +198,7 @@ class _EditStudentFormState extends State<EditStudentForm> {
   Future<void> _pickImageCamers() async {
     final ImagePicker _picker = ImagePicker();
     final XFile? pickedImage =
-        await _picker.pickImage(source: ImageSource.camera, imageQuality: 10);
+        await _picker.pickImage(source: ImageSource.camera, imageQuality: 30);
 
     if (pickedImage != null) {
       setState(() {
@@ -363,7 +363,7 @@ class _EditStudentFormState extends State<EditStudentForm> {
                           ? chargePerMonth.toString()
                           : '',
                       decoration: InputDecoration(
-                        labelText: '$currencyIo Charge Per Month',
+                        labelText: '$currencyIo Fee Per Month',
                         border: OutlineInputBorder(),
                       ),
                       keyboardType: TextInputType.number,

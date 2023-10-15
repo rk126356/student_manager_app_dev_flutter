@@ -95,7 +95,6 @@ class _StudentsScreenState extends State<StudentsScreen>
                     .doc(user.uid)
                     .collection('students')
                     .orderBy('joinedDate', descending: true)
-                    .limit(15)
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
@@ -176,7 +175,6 @@ class _StudentsScreenState extends State<StudentsScreen>
                     .collection('students')
                     .where('isActive', isEqualTo: true)
                     .orderBy('joinedDate', descending: true)
-                    .limit(15)
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
@@ -257,7 +255,6 @@ class _StudentsScreenState extends State<StudentsScreen>
                     .collection('students')
                     .where('isLeft', isEqualTo: true)
                     .orderBy('joinedDate', descending: true)
-                    .limit(15)
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {

@@ -20,7 +20,6 @@ class UserProvider extends ChangeNotifier {
   bool get isNewOpen => _isNewOpen;
 
   UserProvider() {
-    print("Provider initialized");
     _initializeDataFromPrefs();
   }
 
@@ -56,8 +55,6 @@ class UserProvider extends ChangeNotifier {
     String? currency = prefs.getString('currency');
     String? currencyName = prefs.getString('currencyName');
     bool? isFirstLaunch = prefs.getBool('firstLaunch');
-
-    print("Saved isFirstLaunch $isFirstLaunch");
 
     if (currency != null) {
       _currency = currency;

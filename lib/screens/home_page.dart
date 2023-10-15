@@ -13,6 +13,8 @@ import 'package:student_manager_app_dev_flutter/components/this_month.dart';
 import 'package:student_manager_app_dev_flutter/providers/user_provider.dart';
 import 'package:student_manager_app_dev_flutter/utils/bill_generator.dart';
 import 'package:student_manager_app_dev_flutter/widgets/tab_button_widget.dart';
+import 'package:student_manager_app_dev_flutter/widgets/update_dialog.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -22,11 +24,15 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _selectedMonthIndex = 0; // 0 for "This Month", 1 for "Last Month"
+  int _selectedMonthIndex = 0;
   int _selectedTabIndex = 0;
   bool _billGenerated = false;
 
-  updateAppLaunched(user) {
+  updateAppLaunched(user) async {
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+
+    String currentVersion = packageInfo.version;
+
     FirebaseFirestore.instance
         .collection('users')
         .doc(user.uid)
@@ -40,12 +46,53 @@ class _HomeScreenState extends State<HomeScreen> {
 
           FirebaseFirestore.instance.collection('users').doc(user.uid).update({
             'noOfTimeAppLaunched': noOfTimeAppLaunched + 1,
+            'appVersion': currentVersion,
           });
         } else {
           print('Field noOfTimeAppLaunched not found or is null.');
           FirebaseFirestore.instance.collection('users').doc(user.uid).update({
             'noOfTimeAppLaunched': 1,
           });
+        }
+      } else {
+        print('Document does not exist.');
+      }
+    });
+
+    FirebaseFirestore.instance
+        .collection('appInfo')
+        .doc('t24RkgPVXADO1i9wu3YJ')
+        .get()
+        .then((DocumentSnapshot<Map<String, dynamic>> snapshot) {
+      if (snapshot.exists) {
+        // Check if the document exists
+        Map<String, dynamic>? data = snapshot.data();
+        if (data != null) {
+          String version = data['version'];
+          bool isUpdateAvailable = data['isUpdateAvailable'];
+          String updateMessage = data['updateMessage'];
+          String appLink = data['appLink'];
+          bool isForceUpdate = data['isForceUpdate'];
+          if (isUpdateAvailable && currentVersion != version) {
+            void showUpdateDialog(BuildContext context) {
+              showDialog(
+                context: context,
+                barrierDismissible: isForceUpdate,
+                builder: (context) {
+                  return UpdateDialog(
+                    version: version,
+                    description: updateMessage,
+                    appLink: appLink,
+                    allowDismissal: !isForceUpdate,
+                  );
+                },
+              );
+            }
+
+            showUpdateDialog(context);
+          }
+        } else {
+          print('Field version not found or is null.');
         }
       } else {
         print('Document does not exist.');

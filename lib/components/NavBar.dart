@@ -80,7 +80,7 @@ class NavBar extends StatelessWidget {
             ),
           ),
           ListTile(
-            leading: const Icon(Icons.currency_rupee),
+            leading: const Icon(Icons.payments),
             title: const Text('Payments'),
             onTap: () => Navigator.pushNamed(context, '/payments'),
           ),

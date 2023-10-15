@@ -119,7 +119,7 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
       'isActive': isActive,
       'isLeft': isLeft,
       'chargePerMonth': chargePerMonth,
-      'studentPhoneNumber': studentPhoneNumber,
+      'studentPhoneNumber': studentPhoneNumber.trim(),
       'studentImageURL': studentImage != null
           ? "$modifiedUrl?alt=media"
           : "https://firebasestorage.googleapis.com/v0/b/student-manager-ac339.appspot.com/o/pngtree-vector-male-student-icon-png-image_558702-removebg-preview.png?alt=media&token=6205bbaf-fa94-4794-aa97-0e41581f5ed2&_gl=1*10lebqg*_ga*MTUxOTk0NjEwMC4xNjk2NzU3OTg2*_ga_CW55HF8NVT*MTY5NzAzODg0MS4yMy4xLjE2OTcwNDY0NjkuNjAuMC4w", // Get image URL
@@ -136,7 +136,7 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
   Future<void> _pickImage() async {
     final ImagePicker _picker = ImagePicker();
     final XFile? pickedImage =
-        await _picker.pickImage(source: ImageSource.gallery, imageQuality: 10);
+        await _picker.pickImage(source: ImageSource.gallery, imageQuality: 30);
 
     if (pickedImage != null) {
       setState(() {
@@ -148,7 +148,7 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
   Future<void> _pickImageCamers() async {
     final ImagePicker _picker = ImagePicker();
     final XFile? pickedImage =
-        await _picker.pickImage(source: ImageSource.camera, imageQuality: 10);
+        await _picker.pickImage(source: ImageSource.camera, imageQuality: 30);
 
     if (pickedImage != null) {
       setState(() {
@@ -272,7 +272,7 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
           const SizedBox(height: 10),
           TextFormField(
             decoration: InputDecoration(
-              labelText: '$currency Charge Per Month',
+              labelText: '$currency Fee Per Month',
               border: const OutlineInputBorder(),
             ),
             keyboardType: TextInputType.number,
@@ -281,7 +281,7 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
             ],
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Please enter the charge per month';
+                return 'Please enter the fee per month';
               }
               return null;
             },

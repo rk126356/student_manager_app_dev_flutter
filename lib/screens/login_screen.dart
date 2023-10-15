@@ -67,16 +67,37 @@ class _LoginScreenState extends State<LoginScreen> {
             name: _user.displayName,
             avatarUrl: _user.photoURL));
 
-        await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
-          'displayName': user.displayName,
-          'email': user.email,
-          'uid': user.uid,
-          'avatarUrl': user.photoURL,
-          'currency':
-              Provider.of<UserProvider>(context, listen: false).currency,
-          'currencyName':
-              Provider.of<UserProvider>(context, listen: false).currencyName
-        });
+        // Check if the user data already exists in Firestore
+        final userDoc =
+            FirebaseFirestore.instance.collection('users').doc(user.uid);
+        final userDocSnapshot = await userDoc.get();
+
+        if (userDocSnapshot.exists) {
+          // If the document exists, update its data
+          await userDoc.update({
+            'displayName': user.displayName,
+            'email': user.email,
+            'uid': user.uid,
+            'avatarUrl': user.photoURL,
+            'currency':
+                Provider.of<UserProvider>(context, listen: false).currency,
+            'currencyName':
+                Provider.of<UserProvider>(context, listen: false).currencyName
+          });
+        } else {
+          // If the document doesn't exist, create it
+          await userDoc.set({
+            'displayName': user.displayName,
+            'email': user.email,
+            'uid': user.uid,
+            'avatarUrl': user.photoURL,
+            'isPremium': false,
+            'currency':
+                Provider.of<UserProvider>(context, listen: false).currency,
+            'currencyName':
+                Provider.of<UserProvider>(context, listen: false).currencyName
+          });
+        }
 
         print('User data stored in Firestore');
 
@@ -110,20 +131,20 @@ class _LoginScreenState extends State<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Image.asset(
-                      'assets/images/google-logo.png',
-                      height: 150,
-                      width: 150,
+                      'assets/images/student_manager_logo.png',
+                      height: 250,
+                      width: 250,
                     ),
-                    const SizedBox(height: 20),
-                    const Text(
-                      "Student Manager",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
+                    // const SizedBox(height: 20),
+                    // const Text(
+                    //   "Student Manager",
+                    //   textAlign: TextAlign.center,
+                    //   style: TextStyle(
+                    //     fontSize: 32,
+                    //     fontWeight: FontWeight.bold,
+                    //     color: Colors.white,
+                    //   ),
+                    // ),
                     const SizedBox(height: 30),
                     Text(
                       "Currency: ${currency.currency}${currency.currencyName}",

@@ -90,7 +90,7 @@ class UpcomingPaymentsSevenDaysTab extends StatelessWidget {
                         const Icon(Icons.error),
                   ),
                   title: Text(
-                    '$studentName - Batch: $studentBatch',
+                    '$studentName - $studentBatch',
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,

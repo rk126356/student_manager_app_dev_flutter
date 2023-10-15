@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import 'package:student_manager_app_dev_flutter/providers/user_provider.dart';
 import 'package:student_manager_app_dev_flutter/screens/payments/inside_upcoing_payments_screen.dart';
 import 'package:student_manager_app_dev_flutter/utils/send_whatsapp_reminder.dart';
-import 'package:student_manager_app_dev_flutter/widgets/my_list_tile_widget.dart';
 
 class HomeUpcomingTab extends StatelessWidget {
   const HomeUpcomingTab({
@@ -23,14 +22,13 @@ class HomeUpcomingTab extends StatelessWidget {
         .doc(user.uid)
         .collection('students');
 
-    CollectionReference paymentsCollection1 = FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .collection('students');
+    paymentsCollection.get().then((QuerySnapshot querySnapshot) {
+      int noOfStudents = querySnapshot.size;
+      data.setNoOfPayments(noOfStudents);
 
-    paymentsCollection1.get().then((QuerySnapshot querySnapshot) {
-      int noOfUpcomingPayments = querySnapshot.size;
-      data.setNoOfPayments(noOfUpcomingPayments);
+      FirebaseFirestore.instance.collection('users').doc(user.uid).update({
+        'totalStudents': noOfStudents,
+      });
     }).catchError((error) {
       print('Error getting upcoming payments: $error');
     });
@@ -42,7 +40,10 @@ class HomeUpcomingTab extends StatelessWidget {
     final sevenDaysFromNow = currentDate.add(const Duration(days: 30));
 
     return StreamBuilder<QuerySnapshot>(
-      stream: paymentsCollection.limit(15).snapshots(),
+      stream: paymentsCollection
+          .orderBy('nextBillDate', descending: true)
+          .limit(15)
+          .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
