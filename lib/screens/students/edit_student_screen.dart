@@ -147,6 +147,25 @@ class _EditStudentFormState extends State<EditStudentForm> {
     });
 
     print('Student data updated in Firestore with ID: ${widget.studentId}');
+
+    var data = Provider.of<UserProvider>(context, listen: false);
+
+    CollectionReference paymentsCollection = FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .collection('students');
+
+    paymentsCollection.get().then((QuerySnapshot querySnapshot) {
+      int noOfStudents = querySnapshot.size;
+      data.setNoOfPayments(noOfStudents);
+
+      FirebaseFirestore.instance.collection('users').doc(user.uid).update({
+        'totalStudents': noOfStudents,
+      });
+    }).catchError((error) {
+      print('Error getting upcoming payments: $error');
+    });
+
     setState(() {
       isLoading = false;
     });
