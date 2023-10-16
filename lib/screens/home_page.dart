@@ -105,26 +105,6 @@ class _HomeScreenState extends State<HomeScreen> {
     var user = Provider.of<UserProvider>(context, listen: false).userData;
     var pvdata = Provider.of<UserProvider>(context, listen: false);
 
-    if (pvdata.fetchNoOfStudents) {
-      CollectionReference paymentsCollection = FirebaseFirestore.instance
-          .collection('users')
-          .doc(pvdata.userData.uid)
-          .collection('students');
-
-      paymentsCollection.get().then((QuerySnapshot querySnapshot) {
-        int noOfStudents = querySnapshot.size;
-        pvdata.setNoOfStudents(noOfStudents);
-
-        FirebaseFirestore.instance
-            .collection('users')
-            .doc(pvdata.userData.uid)
-            .update({
-          'totalStudents': noOfStudents,
-        });
-      }).catchError((error) {
-        print('Error getting no of students: $error');
-      });
-    }
     if (pvdata.isNewOpen) {
       updateAppLaunched(user);
       pvdata.setIsNewOpen(false);
