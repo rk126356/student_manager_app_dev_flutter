@@ -227,7 +227,7 @@ class _BatchesScreenState extends State<BatchesScreen> {
                         deleteBatch(batchName);
                       },
                     ),
-                    const Icon(Icons.arrow_right, color: Colors.blue),
+                    const Icon(Icons.arrow_forward_ios, color: Colors.blue),
                   ],
                 ),
                 onTap: () {
