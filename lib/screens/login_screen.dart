@@ -91,7 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
             'email': user.email,
             'uid': user.uid,
             'avatarUrl': user.photoURL,
-            'isPremium': false,
+            'plan': 'free',
             'currency':
                 Provider.of<UserProvider>(context, listen: false).currency,
             'currencyName':

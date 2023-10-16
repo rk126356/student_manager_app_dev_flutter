@@ -65,8 +65,16 @@ class NavBar extends StatelessWidget {
             trailing: ClipOval(
               child: Container(
                 color: Colors.red,
-                width: 20,
-                height: 20,
+                width: data.noOfUPayments >= 1000
+                    ? 40
+                    : data.noOfUPayments >= 100
+                        ? 30
+                        : 20,
+                height: data.noOfUPayments >= 1000
+                    ? 40
+                    : data.noOfUPayments >= 100
+                        ? 30
+                        : 20,
                 child: Center(
                   child: Text(
                     data.noOfUPayments.toString(),
