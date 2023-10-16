@@ -127,6 +127,25 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
 
     print('Student data added to Firestore with ID: $studentId');
 
+    var user = Provider.of<UserProvider>(context, listen: false).userData;
+    var data = Provider.of<UserProvider>(context, listen: false);
+
+    CollectionReference paymentsCollection = FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .collection('students');
+
+    paymentsCollection.get().then((QuerySnapshot querySnapshot) {
+      int noOfStudents = querySnapshot.size;
+      data.setNoOfPayments(noOfStudents);
+
+      FirebaseFirestore.instance.collection('users').doc(user.uid).update({
+        'totalStudents': noOfStudents,
+      });
+    }).catchError((error) {
+      print('Error getting upcoming payments: $error');
+    });
+
     setState(() {
       isLoading = false;
     });

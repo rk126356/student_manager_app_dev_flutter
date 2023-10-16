@@ -24,17 +24,6 @@ class HomeUpcomingTab extends StatelessWidget {
         .doc(user.uid)
         .collection('students');
 
-    paymentsCollection.get().then((QuerySnapshot querySnapshot) {
-      int noOfStudents = querySnapshot.size;
-      data.setNoOfPayments(noOfStudents);
-
-      FirebaseFirestore.instance.collection('users').doc(user.uid).update({
-        'totalStudents': noOfStudents,
-      });
-    }).catchError((error) {
-      print('Error getting upcoming payments: $error');
-    });
-
     final currentDate = DateTime.now();
     final currentMonth = currentDate.month;
     final currentYear = currentDate.year;
