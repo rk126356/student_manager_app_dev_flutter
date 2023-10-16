@@ -5,10 +5,12 @@ import 'package:provider/provider.dart';
 import 'package:student_manager_app_dev_flutter/models/user_model.dart';
 import 'package:student_manager_app_dev_flutter/providers/user_provider.dart';
 import 'package:student_manager_app_dev_flutter/screens/batches_page.dart';
+import 'package:student_manager_app_dev_flutter/screens/data_exports.dart';
 import 'package:student_manager_app_dev_flutter/screens/home_page.dart';
 import 'package:student_manager_app_dev_flutter/screens/login_screen.dart';
 import 'package:student_manager_app_dev_flutter/screens/payments/search_payments_screen.dart';
 import 'package:student_manager_app_dev_flutter/screens/payments_page.dart';
+import 'package:student_manager_app_dev_flutter/screens/premium_screen.dart';
 import 'package:student_manager_app_dev_flutter/screens/reports_page.dart';
 import 'package:student_manager_app_dev_flutter/screens/search_screen.dart';
 import 'package:student_manager_app_dev_flutter/screens/settings.dart';
@@ -77,6 +79,8 @@ class MyApp extends StatelessWidget {
             const SearchPaymentsScreen(),
         '/reports': (BuildContext context) => ReportsScreen(),
         '/settings': (BuildContext context) => SettingsScreen(),
+        '/premium': (BuildContext context) => const PremiumScreen(),
+        '/exports': (BuildContext context) => DataExportsScreen(),
       },
       debugShowCheckedModeBanner: false,
     );

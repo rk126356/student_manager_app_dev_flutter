@@ -3,10 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:student_manager_app_dev_flutter/components/NavBar.dart';
 import 'package:student_manager_app_dev_flutter/providers/user_provider.dart';
-import 'package:student_manager_app_dev_flutter/screens/students/edit_student_screen.dart';
 import 'package:student_manager_app_dev_flutter/screens/students/inside_students_screen.dart';
 import 'package:student_manager_app_dev_flutter/screens/students/student_bills_screen.dart';
-import 'package:student_manager_app_dev_flutter/widgets/my_list_tile_widget.dart';
 import 'package:student_manager_app_dev_flutter/widgets/students_list_widget.dart';
 
 class StudentsScreen extends StatefulWidget {
