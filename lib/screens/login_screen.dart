@@ -43,7 +43,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Future<void> signInWithGoogle() async {
+    Future<void> signInWithGoogle(data) async {
       setState(() {
         isLoading = true;
       });
@@ -61,7 +61,7 @@ class _LoginScreenState extends State<LoginScreen> {
         final User? user = authResult.user;
         _user = user!;
 
-        Provider.of<UserProvider>(context, listen: false).setUserData(UserModel(
+        data.setUserData(UserModel(
             uid: _user.uid,
             email: _user.email,
             name: _user.displayName,
@@ -79,10 +79,8 @@ class _LoginScreenState extends State<LoginScreen> {
             'email': user.email,
             'uid': user.uid,
             'avatarUrl': user.photoURL,
-            'currency':
-                Provider.of<UserProvider>(context, listen: false).currency,
-            'currencyName':
-                Provider.of<UserProvider>(context, listen: false).currencyName
+            'currency': data.currency,
+            'currencyName': data.currencyName
           });
         } else {
           // If the document doesn't exist, create it
@@ -91,11 +89,9 @@ class _LoginScreenState extends State<LoginScreen> {
             'email': user.email,
             'uid': user.uid,
             'avatarUrl': user.photoURL,
-            'plan': 'free',
-            'currency':
-                Provider.of<UserProvider>(context, listen: false).currency,
-            'currencyName':
-                Provider.of<UserProvider>(context, listen: false).currencyName
+            'isPremium': false,
+            'currency': data.currency,
+            'currencyName': data.currencyName
           });
         }
 
@@ -199,7 +195,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 50),
                     ElevatedButton(
                       onPressed: () {
-                        signInWithGoogle();
+                        signInWithGoogle(currency);
                       },
                       style: ElevatedButton.styleFrom(
                         primary: Colors.white,
