@@ -4,20 +4,22 @@ import 'package:student_manager_app_dev_flutter/models/user_model.dart';
 
 class UserProvider extends ChangeNotifier {
   var _userData = UserModel();
-  int _noOfPayments = 0;
+  int _noOfStudents = 0;
   int _noOfUpcomingPayments = 0;
   String _currency = '₹';
   String _currencyName = 'INR';
   bool _isFirstLaunch = true;
   bool _isNewOpen = true;
+  bool _fetchNoOfStudents = true;
 
   UserModel get userData => _userData;
-  int get noOfUPayments => _noOfPayments;
+  int get noOfUPayments => _noOfStudents;
   int get noOfUpcomingPayments => _noOfUpcomingPayments;
   String get currency => _currency;
   String get currencyName => _currencyName;
   bool get isFirstLaunch => _isFirstLaunch;
   bool get isNewOpen => _isNewOpen;
+  bool get fetchNoOfStudents => _fetchNoOfStudents;
 
   UserProvider() {
     _initializeDataFromPrefs();
@@ -50,11 +52,29 @@ class UserProvider extends ChangeNotifier {
     await prefs.setString('currency', value);
   }
 
+  setNoOfStudents(int value) async {
+    _noOfStudents = value;
+    _fetchNoOfStudents = false;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('noOfStudents', value);
+    await prefs.setBool('fetchNoOfStudents', false);
+  }
+
+  setNoOfUpcomingPayments(int value) {
+    _noOfUpcomingPayments = value;
+  }
+
+  setUserData(UserModel user) {
+    _userData = user;
+  }
+
   Future<void> _initializeDataFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? currency = prefs.getString('currency');
     String? currencyName = prefs.getString('currencyName');
     bool? isFirstLaunch = prefs.getBool('firstLaunch');
+    int? noOfStudents = prefs.getInt('noOfStudents');
+    bool? fetchNoOfStudents = prefs.getBool('fetchNoOfStudents');
 
     if (currency != null) {
       _currency = currency;
@@ -68,23 +88,14 @@ class UserProvider extends ChangeNotifier {
       _isFirstLaunch = isFirstLaunch;
     }
 
-    notifyListeners();
-  }
+    if (noOfStudents != null) {
+      _noOfStudents = noOfStudents;
+    }
 
-  setNoOfPayments(int value) {
-    _noOfPayments = value;
-  }
+    if (fetchNoOfStudents != null) {
+      _fetchNoOfStudents = fetchNoOfStudents;
+    }
 
-  setNoOfUpcomingPayments(int value) {
-    _noOfUpcomingPayments = value;
-  }
-
-  setUserData(UserModel user) {
-    _userData = user;
-  }
-
-  updateUserCurrency(String data) {
-    _userData.currency = data;
     notifyListeners();
   }
 }

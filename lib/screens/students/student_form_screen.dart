@@ -135,7 +135,7 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
 
     paymentsCollection.get().then((QuerySnapshot querySnapshot) {
       int noOfStudents = querySnapshot.size;
-      data.setNoOfPayments(noOfStudents);
+      data.setNoOfStudents(noOfStudents);
 
       FirebaseFirestore.instance
           .collection('users')
