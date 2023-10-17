@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -20,7 +19,7 @@ class CreateStudentScreen extends StatelessWidget {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Create Student'),
+          title: const Text('Add Student'),
         ),
         body: SingleChildScrollView(
           child: Padding(
@@ -364,7 +363,7 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
               children: [
                 Icon(Icons.add), // Add an icon to the button
                 SizedBox(width: 8), // Add some space between the icon and text
-                Text('Create Student'),
+                Text('Add Student'),
               ],
             ),
           ),

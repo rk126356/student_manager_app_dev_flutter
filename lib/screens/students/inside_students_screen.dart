@@ -399,6 +399,7 @@ class _InsideStudentScreenState extends State<InsideStudentScreen> {
         FirebaseFirestore.instance.collection('users');
 
     var user = Provider.of<UserProvider>(context, listen: false).userData;
+    var pvdata = Provider.of<UserProvider>(context, listen: false);
 
     // Create a document for the user with the provided UID
     DocumentReference userDocument = usersCollection.doc(user.uid);
@@ -409,6 +410,25 @@ class _InsideStudentScreenState extends State<InsideStudentScreen> {
 
     // Delete the document with the provided studentId
     await studentsCollection.doc(widget.studentId).delete();
+
+    CollectionReference paymentsCollection = FirebaseFirestore.instance
+        .collection('users')
+        .doc(pvdata.userData.uid)
+        .collection('students');
+
+    paymentsCollection.get().then((QuerySnapshot querySnapshot) {
+      int noOfStudents = querySnapshot.size;
+      pvdata.setNoOfStudents(noOfStudents);
+
+      FirebaseFirestore.instance
+          .collection('users')
+          .doc(pvdata.userData.uid)
+          .update({
+        'totalStudents': noOfStudents,
+      });
+    }).catchError((error) {
+      print('Error getting no of students: $error');
+    });
 
     print('Student deleted from Firestore with ID: ${widget.studentId}');
   }

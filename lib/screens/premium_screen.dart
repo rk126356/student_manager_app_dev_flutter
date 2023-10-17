@@ -81,7 +81,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                     } else if (index == 1) {
                       return PremiumPlanCard(
                         title: 'Basic Plan',
-                        price: '₹99.00/month',
+                        price: '₹199.00/month',
                         features: const [
                           'Up to 200 Students',
                           'CSV Data Exports',
@@ -92,7 +92,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                     } else {
                       return PremiumPlanCard(
                         title: 'Pro Plan',
-                        price: '₹199.00/month',
+                        price: '₹299.00/month',
                         features: const [
                           'Up to 500 Students',
                           'High Quality Images',
@@ -110,7 +110,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
               // "Contact Us via WhatsApp" Button with improved styling
               Container(
                 padding:
-                    const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                    const EdgeInsets.symmetric(vertical: 20, horizontal: 50),
                 child: ElevatedButton(
                   onPressed: () {
                     // Implement the logic to open a WhatsApp chat here.

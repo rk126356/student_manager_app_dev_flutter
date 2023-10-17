@@ -1,9 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:student_manager_app_dev_flutter/providers/user_provider.dart';
 
 class NavBar extends StatelessWidget {
@@ -105,7 +105,7 @@ class NavBar extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.file_upload),
-            title: const Text('Data Exports'),
+            title: const Text('Export CSV'),
             onTap: () => Navigator.pushNamed(context, '/exports'),
           ),
           ListTile(
@@ -115,7 +115,7 @@ class NavBar extends StatelessWidget {
           ),
           const Divider(),
           ListTile(
-            leading: const Icon(Icons.workspace_premium),
+            leading: const Icon(Icons.diamond),
             title: const Text('Premium'),
             onTap: () => Navigator.pushNamed(context, '/premium'),
           ),
@@ -125,6 +125,9 @@ class NavBar extends StatelessWidget {
             onTap: () async {
               await GoogleSignIn().signOut();
               FirebaseAuth.instance.signOut();
+              SharedPreferences preferences =
+                  await SharedPreferences.getInstance();
+              await preferences.clear();
               Navigator.pushNamedAndRemoveUntil(
                   context, '/login', (route) => false);
             },

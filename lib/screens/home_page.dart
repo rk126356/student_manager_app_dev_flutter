@@ -52,6 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
           print('Field noOfTimeAppLaunched not found or is null.');
           FirebaseFirestore.instance.collection('users').doc(user.uid).update({
             'noOfTimeAppLaunched': 1,
+            'appVersion': currentVersion,
           });
         }
       } else {
@@ -173,7 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             children: [
               Container(
-                padding: const EdgeInsets.only(bottom: 400),
+                padding: const EdgeInsets.only(bottom: 350),
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
                     colors: [Colors.deepPurple, Colors.purple],
