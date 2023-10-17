@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:student_manager_app_dev_flutter/components/this_month.dart';
 import 'package:student_manager_app_dev_flutter/providers/user_provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -52,6 +51,7 @@ class _EditStudentFormState extends State<EditStudentForm> {
   String? studentName;
   String? studentBatch;
   int? chargePerMonth;
+  String? joinedDate;
   String? nextBillDate;
   String? lastBillDate;
   bool? isActive;
@@ -63,27 +63,28 @@ class _EditStudentFormState extends State<EditStudentForm> {
   String? studentPhoneNumber;
   String? studentImageURL;
   bool isLoading = false;
+  String? toNextBillDate;
 
   @override
   void initState() {
     super.initState();
+    final currentDate = DateTime.now();
+    toNextBillDate =
+        "${currentDate.day}/${currentDate.month}/${currentDate.year}";
   }
 
   Future<void> _selectDate(BuildContext context, bool isJoinedDate) async {
-    DateTime currentDate = DateTime.now();
-    DateTime firstDateOfMonth =
-        DateTime(currentDate.year, currentDate.month, 1);
     DateTime? selectedDate = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
-      firstDate: firstDateOfMonth,
+      firstDate: DateTime(2000),
       lastDate: DateTime(2101),
     );
 
     if (selectedDate != null) {
       setState(() {
         if (isJoinedDate) {
-          nextBillDate =
+          joinedDate =
               "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}";
         }
       });
@@ -95,7 +96,7 @@ class _EditStudentFormState extends State<EditStudentForm> {
     String studentName,
     String studentBatch,
     int chargePerMonth,
-    String nextBillDate,
+    String joinedDate,
     bool isActive,
     bool isLeft,
     String studentPhoneNumber,
@@ -115,30 +116,30 @@ class _EditStudentFormState extends State<EditStudentForm> {
         userDocument.collection('students');
 
     final DateTime parsedJoinedDate =
-        DateFormat('dd/MM/yyyy').parse(nextBillDate!);
-    final DateTime newLastBillDate =
-        parsedJoinedDate.subtract(const Duration(days: 30));
+        DateFormat('dd/MM/yyyy').parse(toNextBillDate!);
+    final DateTime nextBillDate =
+        parsedJoinedDate.add(const Duration(days: 30));
 
-    // studentsCollection.doc(widget.studentId).get().then((doc) async {
-    //   if (doc.exists) {
-    //     if (isActive != doc['isActive'] && isLeft != doc['isLeft']) {
-    //       bool searverActive = doc['isActive'];
-    //       print("$isActive and $searverActive");
+    studentsCollection.doc(widget.studentId).get().then((doc) async {
+      if (doc.exists) {
+        if (isActive != doc['isActive'] && isLeft != doc['isLeft']) {
+          bool searverActive = doc['isActive'];
+          print("$isActive and $searverActive");
 
-    //       await studentsCollection.doc(widget.studentId).update({
-    //         'lastBillDate': DateFormat('dd/MM/yyyy').format(newLastBillDate),
-    //       });
-    //     }
-    //   }
-    // });
+          await studentsCollection.doc(widget.studentId).update({
+            'nextBillDate': DateFormat('dd/MM/yyyy').format(nextBillDate),
+            'lastBillDate': toNextBillDate,
+          });
+        }
+      }
+    });
 
     // Update the document with the provided studentId
     await studentsCollection.doc(widget.studentId).update({
       'studentName': studentName,
       'studentBatch': studentBatch,
       'chargePerMonth': chargePerMonth,
-      'lastBillDate': DateFormat('dd/MM/yyyy').format(newLastBillDate),
-      'nextBillDate': nextBillDate,
+      'joinedDate': joinedDate,
       'isActive': isActive,
       'isLeft': isLeft,
       'studentPhoneNumber': studentPhoneNumber.trim(),
@@ -231,6 +232,7 @@ class _EditStudentFormState extends State<EditStudentForm> {
           studentName = studentData['studentName'];
           studentBatch = studentData['studentBatch'];
           chargePerMonth = studentData['chargePerMonth'];
+          joinedDate = studentData['joinedDate'];
           nextBillDate = studentData['nextBillDate'];
           lastBillDate = studentData['lastBillDate'];
           isActive = studentData['isActive'];
@@ -394,10 +396,10 @@ class _EditStudentFormState extends State<EditStudentForm> {
                       },
                       child: InputDecorator(
                         decoration: const InputDecoration(
-                          labelText: 'Next Bull Date',
+                          labelText: 'Joined Date',
                           border: OutlineInputBorder(),
                         ),
-                        child: Text(nextBillDate ?? ''),
+                        child: Text(joinedDate ?? ''),
                       ),
                     ),
                   ),
@@ -464,7 +466,7 @@ class _EditStudentFormState extends State<EditStudentForm> {
                       studentName!,
                       studentBatch!,
                       chargePerMonth!,
-                      nextBillDate!,
+                      joinedDate!,
                       isActive!,
                       isLeft!,
                       studentPhoneNumber!,
