@@ -103,22 +103,22 @@ class NavBar extends StatelessWidget {
             title: const Text('Reports'),
             onTap: () => Navigator.pushNamed(context, '/reports'),
           ),
-          ListTile(
-            leading: const Icon(Icons.file_upload),
-            title: const Text('Export CSV'),
-            onTap: () => Navigator.pushNamed(context, '/exports'),
-          ),
+          // ListTile(
+          //   leading: const Icon(Icons.file_upload),
+          //   title: const Text('Export CSV'),
+          //   onTap: () => Navigator.pushNamed(context, '/exports'),
+          // ),
           ListTile(
             leading: const Icon(Icons.settings),
             title: const Text('Settings'),
             onTap: () => Navigator.pushNamed(context, '/settings'),
           ),
           const Divider(),
-          ListTile(
-            leading: const Icon(Icons.diamond),
-            title: const Text('Premium'),
-            onTap: () => Navigator.pushNamed(context, '/premium'),
-          ),
+          // ListTile(
+          //   leading: const Icon(Icons.diamond),
+          //   title: const Text('Premium'),
+          //   onTap: () => Navigator.pushNamed(context, '/premium'),
+          // ),
           ListTile(
             title: const Text('Logout'),
             leading: const Icon(Icons.logout),

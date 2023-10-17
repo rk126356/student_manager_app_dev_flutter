@@ -131,16 +131,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       height: 250,
                       width: 250,
                     ),
-                    // const SizedBox(height: 20),
-                    // const Text(
-                    //   "Student Manager",
-                    //   textAlign: TextAlign.center,
-                    //   style: TextStyle(
-                    //     fontSize: 32,
-                    //     fontWeight: FontWeight.bold,
-                    //     color: Colors.white,
-                    //   ),
-                    // ),
                     const SizedBox(height: 30),
                     Text(
                       "Currency: ${currency.currency}${currency.currencyName}",

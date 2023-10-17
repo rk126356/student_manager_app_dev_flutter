@@ -61,8 +61,12 @@ class _InsideUpcomingPaymentsScreenState
             .collection('students')
             .doc(studentId); // Replace with the actual student document ID
 
+        final DateTime newLastBillDate =
+            nextBillDate.subtract(const Duration(days: 30));
+
         await paymentDocumentReference.update({
-          'nextBillDate': DateFormat('dd/MM/yy').format(selectedDate!),
+          'nextBillDate': DateFormat('dd/MM/yyyy').format(selectedDate!),
+          'lastBillDate': DateFormat('dd/MM/yyyy').format(newLastBillDate!),
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
