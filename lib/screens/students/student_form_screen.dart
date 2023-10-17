@@ -1,14 +1,17 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:student_manager_app_dev_flutter/main.dart';
 import 'package:student_manager_app_dev_flutter/providers/user_provider.dart';
 import 'package:uuid/uuid.dart';
 import 'package:image_picker/image_picker.dart';
+import 'dart:typed_data';
 
 class CreateStudentScreen extends StatelessWidget {
   @override
@@ -49,6 +52,7 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
   String? studentPhoneNumber;
   String selectedCountryCode = '+91';
   bool isLoading = false;
+  Uint8List? selectedImageBytes;
 
   @override
   void initState() {
@@ -58,16 +62,16 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
   }
 
   Future<void> addStudentToFirestore(
-    String uid,
-    String studentName,
-    String studentBatch,
-    String joinedDate,
-    bool isActive,
-    bool isLeft,
-    int chargePerMonth,
-    String studentPhoneNumber,
-    File? studentImage,
-  ) async {
+      String uid,
+      String studentName,
+      String studentBatch,
+      String joinedDate,
+      bool isActive,
+      bool isLeft,
+      int chargePerMonth,
+      String studentPhoneNumber,
+      File? studentImage,
+      [Uint8List? selectedImageBytes]) async {
     setState(() {
       isLoading = true;
     });
@@ -94,6 +98,12 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
       url = await storageReference.getDownloadURL();
     }
 
+    if (selectedImageBytes != null) {
+      await storageReference.putData(
+          selectedImageBytes, SettableMetadata(contentType: 'image/png'));
+      url = await storageReference.getDownloadURL();
+    }
+
     Uri originalUri = Uri.parse(url);
 
 // Create a new URI with the scheme, host, and the modified last segment
@@ -108,21 +118,39 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
     String modifiedUrl = modifiedUri.toString();
 
     // Add student data to Firestore
-    await studentsCollection.doc(studentId).set({
-      'studentId': studentId,
-      'studentName': studentName,
-      'studentBatch': studentBatch,
-      'joinedDate': joinedDate,
-      'lastBillDate': joinedDate,
-      'nextBillDate': DateFormat('dd/MM/yyyy').format(nextBillDate),
-      'isActive': isActive,
-      'isLeft': isLeft,
-      'chargePerMonth': chargePerMonth,
-      'studentPhoneNumber': studentPhoneNumber.trim(),
-      'studentImageURL': studentImage != null
-          ? "$modifiedUrl?alt=media"
-          : "https://firebasestorage.googleapis.com/v0/b/student-manager-ac339.appspot.com/o/pngtree-vector-male-student-icon-png-image_558702-removebg-preview.png?alt=media&token=6205bbaf-fa94-4794-aa97-0e41581f5ed2&_gl=1*10lebqg*_ga*MTUxOTk0NjEwMC4xNjk2NzU3OTg2*_ga_CW55HF8NVT*MTY5NzAzODg0MS4yMy4xLjE2OTcwNDY0NjkuNjAuMC4w", // Get image URL
-    });
+    if (kIsWeb) {
+      await studentsCollection.doc(studentId).set({
+        'studentId': studentId,
+        'studentName': studentName,
+        'studentBatch': studentBatch,
+        'joinedDate': joinedDate,
+        'lastBillDate': joinedDate,
+        'nextBillDate': DateFormat('dd/MM/yyyy').format(nextBillDate),
+        'isActive': isActive,
+        'isLeft': isLeft,
+        'chargePerMonth': chargePerMonth,
+        'studentPhoneNumber': studentPhoneNumber.trim(),
+        'studentImageURL': selectedImageBytes != null
+            ? "$modifiedUrl?alt=media"
+            : "https://firebasestorage.googleapis.com/v0/b/student-manager-ac339.appspot.com/o/pngtree-vector-male-student-icon-png-image_558702-removebg-preview.png?alt=media&token=6205bbaf-fa94-4794-aa97-0e41581f5ed2&_gl=1*10lebqg*_ga*MTUxOTk0NjEwMC4xNjk2NzU3OTg2*_ga_CW55HF8NVT*MTY5NzAzODg0MS4yMy4xLjE2OTcwNDY0NjkuNjAuMC4w", // Get image URL
+      });
+    } else {
+      await studentsCollection.doc(studentId).set({
+        'studentId': studentId,
+        'studentName': studentName,
+        'studentBatch': studentBatch,
+        'joinedDate': joinedDate,
+        'lastBillDate': joinedDate,
+        'nextBillDate': DateFormat('dd/MM/yyyy').format(nextBillDate),
+        'isActive': isActive,
+        'isLeft': isLeft,
+        'chargePerMonth': chargePerMonth,
+        'studentPhoneNumber': studentPhoneNumber.trim(),
+        'studentImageURL': studentImage != null
+            ? "$modifiedUrl?alt=media"
+            : "https://firebasestorage.googleapis.com/v0/b/student-manager-ac339.appspot.com/o/pngtree-vector-male-student-icon-png-image_558702-removebg-preview.png?alt=media&token=6205bbaf-fa94-4794-aa97-0e41581f5ed2&_gl=1*10lebqg*_ga*MTUxOTk0NjEwMC4xNjk2NzU3OTg2*_ga_CW55HF8NVT*MTY5NzAzODg0MS4yMy4xLjE2OTcwNDY0NjkuNjAuMC4w", // Get image URL
+      });
+    }
 
     print('Student data added to Firestore with ID: $studentId');
     var data = Provider.of<UserProvider>(context, listen: false);
@@ -155,19 +183,36 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
   Future<void> _pickImage() async {
     final ImagePicker _picker = ImagePicker();
     final XFile? pickedImage =
-        await _picker.pickImage(source: ImageSource.gallery, imageQuality: 30);
+        await _picker.pickImage(source: ImageSource.gallery);
 
     if (pickedImage != null) {
       setState(() {
         selectedImageFile = File(pickedImage.path);
       });
+    }
+  }
+
+  Future<void> _pickFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      allowMultiple: false,
+    );
+
+    if (result != null) {
+      final PlatformFile file = result.files.first;
+      if (file.bytes != null) {
+        setState(() {
+          selectedImageBytes = Uint8List.fromList(file.bytes!);
+        });
+      }
+      print(selectedImageBytes);
     }
   }
 
   Future<void> _pickImageCamers() async {
     final ImagePicker _picker = ImagePicker();
     final XFile? pickedImage =
-        await _picker.pickImage(source: ImageSource.camera, imageQuality: 30);
+        await _picker.pickImage(source: ImageSource.camera);
 
     if (pickedImage != null) {
       setState(() {
@@ -176,8 +221,35 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
     }
   }
 
+  Widget _buildImagePreviewWeb() {
+    if (selectedImageBytes != null) {
+      return Container(
+        width: 150,
+        height: 150,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          image: DecorationImage(
+            fit: BoxFit.cover,
+            image: MemoryImage(selectedImageBytes!),
+          ),
+        ),
+      );
+    } else {
+      return Container(
+        width: 150,
+        height: 150,
+        decoration: const BoxDecoration(
+          shape: BoxShape.circle,
+          image: DecorationImage(
+            fit: BoxFit.cover,
+            image: AssetImage('assets/images/user.png'),
+          ),
+        ),
+      );
+    }
+  }
+
   Widget _buildImagePreview() {
-    print(selectedImageFile);
     if (selectedImageFile != null) {
       return Container(
         width: 150,
@@ -221,14 +293,22 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
       key: _formKey,
       child: Column(
         children: [
-          _buildImagePreview(),
+          if (kIsWeb) _buildImagePreviewWeb(),
+          if (!kIsWeb) _buildImagePreview(),
+          const SizedBox(
+            height: 10,
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ElevatedButton.icon(
                 onPressed: () {
-                  _pickImage(); // Call the image picker function
-                  _buildImagePreview(); // Display the selected image preview
+                  if (kIsWeb) {
+                    _pickFile();
+                  } else {
+                    _pickImage();
+                  }
+                  _buildImagePreview();
                 },
                 icon: const Icon(Icons.image, size: 15),
                 label: const Text('Select Image'),
@@ -238,20 +318,21 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
                   padding: const EdgeInsets.all(8),
                 ),
               ),
-              const SizedBox(width: 15),
-              ElevatedButton.icon(
-                onPressed: () {
-                  _pickImageCamers(); // Call the image picker function
-                  _buildImagePreview(); // Display the selected image preview
-                },
-                icon: const Icon(Icons.camera_alt, size: 15),
-                label: const Text('Open Camera'),
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  backgroundColor: Colors.green,
-                  padding: const EdgeInsets.all(8),
+              if (!kIsWeb) const SizedBox(width: 15),
+              if (!kIsWeb)
+                ElevatedButton.icon(
+                  onPressed: () {
+                    _pickImageCamers();
+                    _buildImagePreview();
+                  },
+                  icon: const Icon(Icons.camera_alt, size: 15),
+                  label: const Text('Open Camera'),
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    backgroundColor: Colors.green,
+                    padding: const EdgeInsets.all(8),
+                  ),
                 ),
-              ),
             ],
           ),
           const SizedBox(
@@ -355,6 +436,7 @@ class _CreateStudentFormState extends State<CreateStudentForm> {
                   chargePerMonth!,
                   studentPhoneNumber!,
                   selectedImageFile,
+                  selectedImageBytes,
                 );
               }
             },

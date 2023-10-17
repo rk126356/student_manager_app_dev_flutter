@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:student_manager_app_dev_flutter/main.dart';
 import 'package:student_manager_app_dev_flutter/providers/user_provider.dart';
 
 class NavBar extends StatelessWidget {
@@ -103,22 +104,22 @@ class NavBar extends StatelessWidget {
             title: const Text('Reports'),
             onTap: () => Navigator.pushNamed(context, '/reports'),
           ),
-          ListTile(
-            leading: const Icon(Icons.file_upload),
-            title: const Text('Export CSV'),
-            onTap: () => Navigator.pushNamed(context, '/exports'),
-          ),
+          // ListTile(
+          //   leading: const Icon(Icons.file_upload),
+          //   title: const Text('Export CSV'),
+          //   onTap: () => Navigator.pushNamed(context, '/exports'),
+          // ),
           ListTile(
             leading: const Icon(Icons.settings),
             title: const Text('Settings'),
             onTap: () => Navigator.pushNamed(context, '/settings'),
           ),
           const Divider(),
-          ListTile(
-            leading: const Icon(Icons.diamond),
-            title: const Text('Premium'),
-            onTap: () => Navigator.pushNamed(context, '/premium'),
-          ),
+          // ListTile(
+          //   leading: const Icon(Icons.diamond),
+          //   title: const Text('Premium'),
+          //   onTap: () => Navigator.pushNamed(context, '/premium'),
+          // ),
           ListTile(
             title: const Text('Logout'),
             leading: const Icon(Icons.logout),
@@ -128,8 +129,12 @@ class NavBar extends StatelessWidget {
               SharedPreferences preferences =
                   await SharedPreferences.getInstance();
               await preferences.clear();
-              Navigator.pushNamedAndRemoveUntil(
-                  context, '/login', (route) => false);
+
+              if (kIsWeb) {
+                Navigator.pushNamed(context, '/login-web');
+              } else {
+                Navigator.pushNamed(context, '/login');
+              }
             },
           ),
         ],

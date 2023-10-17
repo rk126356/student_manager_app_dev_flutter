@@ -1,4 +1,5 @@
 import 'package:currency_picker/currency_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -22,7 +23,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void checkIsFristLaunch() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool? isFirstLaunch = prefs.getBool('firstLaunch');
-    if (isFirstLaunch == null) {
+    if (isFirstLaunch == null && !kIsWeb) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -131,16 +132,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       height: 250,
                       width: 250,
                     ),
-                    // const SizedBox(height: 20),
-                    // const Text(
-                    //   "Student Manager",
-                    //   textAlign: TextAlign.center,
-                    //   style: TextStyle(
-                    //     fontSize: 32,
-                    //     fontWeight: FontWeight.bold,
-                    //     color: Colors.white,
-                    //   ),
-                    // ),
                     const SizedBox(height: 30),
                     Text(
                       "Currency: ${currency.currency}${currency.currencyName}",

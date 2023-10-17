@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_onboarding_slider/flutter_onboarding_slider.dart';
 import 'package:provider/provider.dart';
+import 'package:student_manager_app_dev_flutter/main.dart';
 import 'package:student_manager_app_dev_flutter/providers/user_provider.dart';
 
 class OnBoarding extends StatelessWidget {
@@ -15,7 +16,12 @@ class OnBoarding extends StatelessWidget {
       home: OnBoardingSlider(
         onFinish: () {
           currency.setFirstLaunch(false);
-          Navigator.pushNamed(context, '/login');
+
+          if (kIsWeb) {
+            Navigator.pushNamed(context, '/login-web');
+          } else {
+            Navigator.pushNamed(context, '/login');
+          }
         },
         centerBackground: true,
         pageBackgroundColor: Colors.white,

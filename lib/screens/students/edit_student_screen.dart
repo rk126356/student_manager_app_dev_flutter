@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -63,6 +64,7 @@ class _EditStudentFormState extends State<EditStudentForm> {
   String? studentPhoneNumber;
   String? studentImageURL;
   bool isLoading = false;
+  Uint8List? selectedImageBytes;
 
   @override
   void initState() {
@@ -91,16 +93,16 @@ class _EditStudentFormState extends State<EditStudentForm> {
   }
 
   Future<void> updateStudentInFirestore(
-    String studentId,
-    String studentName,
-    String studentBatch,
-    int chargePerMonth,
-    String nextBillDate,
-    bool isActive,
-    bool isLeft,
-    String studentPhoneNumber,
-    File? studentImage,
-  ) async {
+      String studentId,
+      String studentName,
+      String studentBatch,
+      int chargePerMonth,
+      String nextBillDate,
+      bool isActive,
+      bool isLeft,
+      String studentPhoneNumber,
+      File? studentImage,
+      [Uint8List? selectedImageBytes]) async {
     setState(() {
       isLoading = true;
     });
@@ -119,19 +121,6 @@ class _EditStudentFormState extends State<EditStudentForm> {
     final DateTime newLastBillDate =
         parsedJoinedDate.subtract(const Duration(days: 30));
 
-    // studentsCollection.doc(widget.studentId).get().then((doc) async {
-    //   if (doc.exists) {
-    //     if (isActive != doc['isActive'] && isLeft != doc['isLeft']) {
-    //       bool searverActive = doc['isActive'];
-    //       print("$isActive and $searverActive");
-
-    //       await studentsCollection.doc(widget.studentId).update({
-    //         'lastBillDate': DateFormat('dd/MM/yyyy').format(newLastBillDate),
-    //       });
-    //     }
-    //   }
-    // });
-
     // Update the document with the provided studentId
     await studentsCollection.doc(widget.studentId).update({
       'studentName': studentName,
@@ -142,8 +131,8 @@ class _EditStudentFormState extends State<EditStudentForm> {
       'isActive': isActive,
       'isLeft': isLeft,
       'studentPhoneNumber': studentPhoneNumber.trim(),
-      'studentImageURL': studentImage != null
-          ? await uploadStudentImage(studentImage, widget.studentId)
+      'studentImageURL': selectedImageBytes != null
+          ? await uploadStudentImage(selectedImageBytes!, widget.studentId)
           : studentImageURL
     });
 
@@ -155,17 +144,19 @@ class _EditStudentFormState extends State<EditStudentForm> {
     Navigator.of(context).pop();
   }
 
-  Future<String> uploadStudentImage(File image, String studentId) async {
+  Future<String> uploadStudentImage(Uint8List image, String studentId) async {
     final String imgId = const Uuid().v4().substring(0, 8);
 
     // Upload the image to Firebase Storage
     final storageReference = FirebaseStorage.instance
         .ref()
         .child('student_images/$studentId/$imgId.jpg');
-    await storageReference.putFile(image);
 
-    // Get the download URL of the uploaded image
-    String url = await storageReference.getDownloadURL();
+    String url = '';
+
+    await storageReference.putData(
+        image!, SettableMetadata(contentType: 'image/png'));
+    url = await storageReference.getDownloadURL();
 
     Uri originalUri = Uri.parse(url);
 
@@ -186,26 +177,19 @@ class _EditStudentFormState extends State<EditStudentForm> {
   }
 
   Future<void> _pickImage() async {
-    final ImagePicker _picker = ImagePicker();
-    final XFile? pickedImage =
-        await _picker.pickImage(source: ImageSource.gallery, imageQuality: 30);
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      allowMultiple: false,
+    );
 
-    if (pickedImage != null) {
-      setState(() {
-        selectedImageFile = File(pickedImage.path);
-      });
-    }
-  }
-
-  Future<void> _pickImageCamers() async {
-    final ImagePicker _picker = ImagePicker();
-    final XFile? pickedImage =
-        await _picker.pickImage(source: ImageSource.camera, imageQuality: 30);
-
-    if (pickedImage != null) {
-      setState(() {
-        selectedImageFile = File(pickedImage.path);
-      });
+    if (result != null) {
+      final PlatformFile file = result.files.first;
+      if (file.bytes != null) {
+        setState(() {
+          selectedImageBytes = Uint8List.fromList(file.bytes!);
+        });
+      }
+      print(selectedImageBytes);
     }
   }
 
@@ -243,8 +227,7 @@ class _EditStudentFormState extends State<EditStudentForm> {
         }
 
         Widget _buildImagePreview() {
-          print(selectedImageFile);
-          if (selectedImageFile != null) {
+          if (selectedImageBytes != null) {
             return Container(
               width: 150,
               height: 150,
@@ -252,7 +235,7 @@ class _EditStudentFormState extends State<EditStudentForm> {
                 shape: BoxShape.circle,
                 image: DecorationImage(
                   fit: BoxFit.cover,
-                  image: FileImage(selectedImageFile!),
+                  image: MemoryImage(selectedImageBytes!),
                 ),
               ),
             );
@@ -289,6 +272,9 @@ class _EditStudentFormState extends State<EditStudentForm> {
           child: Column(
             children: [
               _buildImagePreview(),
+              const SizedBox(
+                height: 20,
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -302,20 +288,6 @@ class _EditStudentFormState extends State<EditStudentForm> {
                     style: ElevatedButton.styleFrom(
                       foregroundColor: Colors.white,
                       backgroundColor: Colors.blue,
-                      padding: const EdgeInsets.all(8),
-                    ),
-                  ),
-                  const SizedBox(width: 15),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      _pickImageCamers(); // Call the image picker function
-                      _buildImagePreview(); // Display the selected image preview
-                    },
-                    icon: const Icon(Icons.camera_alt, size: 15),
-                    label: const Text('Open Camera'),
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      backgroundColor: Colors.green,
                       padding: const EdgeInsets.all(8),
                     ),
                   ),
@@ -460,16 +432,16 @@ class _EditStudentFormState extends State<EditStudentForm> {
                   if (_formKey.currentState!.validate()) {
                     _formKey.currentState!.save();
                     updateStudentInFirestore(
-                      widget.studentId,
-                      studentName!,
-                      studentBatch!,
-                      chargePerMonth!,
-                      nextBillDate!,
-                      isActive!,
-                      isLeft!,
-                      studentPhoneNumber!,
-                      selectedImageFile,
-                    );
+                        widget.studentId,
+                        studentName!,
+                        studentBatch!,
+                        chargePerMonth!,
+                        nextBillDate!,
+                        isActive!,
+                        isLeft!,
+                        studentPhoneNumber!,
+                        selectedImageFile,
+                        selectedImageBytes);
                   }
                 },
                 child: const Row(

@@ -174,7 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             children: [
               Container(
-                padding: const EdgeInsets.only(bottom: 350),
+                padding: const EdgeInsets.only(bottom: 400),
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
                     colors: [Colors.deepPurple, Colors.purple],
